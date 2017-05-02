@@ -637,8 +637,8 @@ class WriteCtx (CtxBase):
 BYTE_BITS = 8
 
 def extract_bits (val, lo_bit, hi_bit):
-    tmp = (val & (~0L << (lo_bit))) >> lo_bit
-    tmp = tmp & ((1L << (hi_bit - lo_bit + 1)) - 1)
+    tmp = (val & (~0 << (lo_bit))) >> lo_bit
+    tmp = tmp & ((1 << (hi_bit - lo_bit + 1)) - 1)
     return tmp
 
 log_of_2 = math.log (2)
@@ -1285,10 +1285,10 @@ class BitStringVal:
 
     def set (self, bit):
         self.check_extend (bit)
-        self.bits = self.bits | (1L << (self.top_ind - bit))
+        self.bits = self.bits | (1 << (self.top_ind - bit))
     def clear (self, bit):
         self.check_extend (bit)
-        self.bits = self.bits & ~(1L << (self.top_ind - bit))
+        self.bits = self.bits & ~(1 << (self.top_ind - bit))
 
     def set_bits (self, bitseq):
         for bit in bitseq:
@@ -1296,7 +1296,7 @@ class BitStringVal:
     def is_set (self, bit):
         if self.top_ind - bit < 0:
             return 0
-        return self.bits & (1L << ( self.top_ind - bit))
+        return self.bits & (1 << ( self.top_ind - bit))
     def __getitem__ (self, bit_name):
         bit_ind = self.defn.get_num_from_name (bit_name)
         return self.is_set (bit_ind)
@@ -1357,7 +1357,7 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
         if pad_bits_count != 0:
             val_len += 1
         l = []
-        to_write = (1L * val.bits) <<  pad_bits_count
+        to_write = (1 * val.bits) <<  pad_bits_count
         for i in range (val_len - 1):
             l.append (to_write % 256)
             to_write = to_write / 256
@@ -1385,7 +1385,7 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
         pad_bits = buf [0]
         bits = 0
         for b in buf [1:]:
-            bits = 256L * bits + b
+            bits = 256 * bits + b
         bits = bits >> pad_bits
         return BitStringVal ((len(buf) - 1) * 8 - pad_bits - 1 , bits,
                              self)
