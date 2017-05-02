@@ -4,9 +4,9 @@
 try:
     from cStringIO import StringIO
 except:
-    from StringIO import StringIO
+    from io import StringIO
 from PyZ3950 import z3950, oids
-from types import IntType, StringType, ListType
+# from types import IntType, StringType, ListType
 # We need "\"\""  to be one token
 from PyZ3950.CQLParser import CQLshlex
 from PyZ3950.CQLUtils import ZCQLConfig
