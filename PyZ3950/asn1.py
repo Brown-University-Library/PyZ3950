@@ -310,7 +310,7 @@ class StructBase:
 # are expressed in terms of numeric tags, regardless of cons flag.
 
 def match_tag (a, b):
-    if trace_tag: print "Match_tag", a, b
+    if trace_tag: print( "Match_tag", a, b )
     cons_match = (a[0] & ~CONS_FLAG == b[0] & ~CONS_FLAG)
     if (a[1] == ANY_TAG or b[1] == ANY_TAG):
         return cons_match
@@ -350,8 +350,8 @@ class CtxBase:
 
     def set_codec (self, defn_inst, codec, strip_bom = 0):
         if trace_codec:
-            print "setting codec", defn_inst, codec, strip_bom
-            print self.codec_dict_stack
+            print( "setting codec", defn_inst, codec, strip_bom )
+            print( self.codec_dict_stack )
         # Note: really only need [0] and [1] elements of codec, encoder and decoder
         self.codec_dict_stack[-1][defn_inst.base_tag] = (codec, strip_bom)
     def get_codec (self, base_tag):
@@ -374,11 +374,11 @@ class CtxBase:
         return self.get_codec (base_tag)[0][1]
     def push_codec (self):
         if trace_codec:
-            print "pushing codec"
+            print( "pushing codec" )
         self.codec_dict_stack.append ({})
     def pop_codec (self):
         if trace_codec:
-            print "popping codec"
+            print( "popping codec" )
         self.codec_dict_stack.pop ()
 
 class IncrementalDecodeCtx(CtxBase):
@@ -461,7 +461,7 @@ class IncrementalDecodeCtx(CtxBase):
     def feed (self, data):
         for char in data:
             if trace_byte:
-                print hex (char), self.state, "offset:", self.offset
+                print( hex (char), self.state, "offset:", self.offset )
             self.state_fns [self.state] (char)
             self.offset += 1
 
@@ -685,7 +685,7 @@ class PERWriteCtx(WriteCtx):
         assert (hi >= lo)
         # XXX what if hi = lo + 1
         rng = hi - lo + 1
-        print rng, val, log2(rng)
+        print( rng, val, log2(rng) )
         if not self.aligned:
             self.write_bits (val, log2(rng))
             return
@@ -730,7 +730,7 @@ class BERWriteCtx(WriteCtx):
         if self.cur_tag == None:
             self.cur_tag = tag
     def tag_write (self, tag):
-        if trace_tag: print "Writing tag", tag
+        if trace_tag: print( "Writing tag", tag )
         (orig_flags, _) = tag
         if self.cur_tag != None:
             tag = self.cur_tag
@@ -1007,7 +1007,7 @@ class INTEGER_class (ELTBASE, NamedBase):
     def encode_per (self, ctx, val):
         assert (not self.extensible)
         assert (self.lo != None)
-        print "encoding", val, self.lo, self.hi
+        print( "encoding", val, self.lo, self.hi )
         if self.hi == None:
             ctx.write_semiconstrained_int (val, self.lo)
         else:
@@ -1019,7 +1019,7 @@ class INTEGER_class (ELTBASE, NamedBase):
         if buf[0] >= 128: sgn = -1
         else: sgn = 1
         for b in buf:
-            if trace_int: print "Reading INTEGER byte", b
+            if trace_int: print( "Reading INTEGER byte", b )
             val = 256 * val + sgn * b
         if sgn == -1:
             val = - (val + pow (2, 8 * len (buf)))
@@ -1067,12 +1067,12 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
     def handle_charset (self, ctx, val):
         encoder, strip_bom = ctx.get_enc (self.base_tag)
         if trace_string:
-            print "encoding", type (val), encoder, self.base_tag, strip_bom,
+            print( "encoding", type (val), encoder, self.base_tag, strip_bom, )
         (val, l) = encoder (val)
         if strip_bom:
             val = val[2:]
         if trace_string:
-            print "encoded", val
+            print( "encoded", val )
         return val
     def encode_val (self, ctx, val):
         val = self.handle_charset (ctx, val)
@@ -1112,10 +1112,10 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
         tmp_str = ''.join (map (chr, buf))
         decoder = ctx.get_dec (self.base_tag)
         if trace_string:
-            print "decoding", repr(tmp_str), decoder, self.base_tag
+            print( "decoding", repr(tmp_str), decoder, self.base_tag )
         rv = decoder (tmp_str)
         if trace_string:
-            print repr (rv)
+            print( repr (rv) )
         return rv [0]
 
 
@@ -1186,11 +1186,11 @@ class CHOICE:
     # Note: we don't include types in the repr, because that can induce
     # infinite recursion.
     def encode (self, ctx, val):
-        if trace_choice: print val
+        if trace_choice: print( val )
         (name, val) = val
         for (cname, ctyp) in self.choice:
             if cname == name:
-                if trace_choice: print "Encoding arm", cname, "Val", val
+                if trace_choice: print( "Encoding arm", cname, "Val", val )
                 ctyp.encode (ctx, val)
                 return
         err =  ("Bogus, no arm for " + repr (name) + " val " +
@@ -1373,15 +1373,15 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
             l.reverse ()
             for i in range (len (l) - 1):
                 v = [0x3, 0x2, 0x0, l[i]]
-                if trace_bitstring: print "encoding", v
+                if trace_bitstring: print( "encoding", v )
                 ctx.bytes_write (v)
             v = [0x3, 0x2, pad_bits_count, l[-1]]
-            if trace_bitstring: print "encoding last", v
+            if trace_bitstring: print( "encoding last", v )
             ctx.bytes_write (v)
             ctx.bytes_write ([0x00,0x00])
     def decode_val (self, ctx, buf):
         if trace_bitstring:
-            print "bitstring", buf
+            print( "bitstring", buf )
         pad_bits = buf [0]
         bits = 0
         for b in buf [1:]:
@@ -1489,7 +1489,7 @@ class SEQUENCE_BASE (ELTBASE):
                 else: raise EncodingError, ("Val " +  repr(val) +
                                             " missing attribute: " +
                                             str(attrname))
-            if trace_seq: print "Encoding", attrname, v
+            if trace_seq: print( "Encoding", attrname, v )
             typ.encode_per (ctx, v)
 
 
@@ -1502,7 +1502,7 @@ class SEQUENCE_BASE (ELTBASE):
                 else: raise EncodingError, ("Val " +  repr(val) +
                                             " missing attribute: " +
                                             str(attrname))
-            if trace_seq: print "Encoding", attrname, v
+            if trace_seq: print( "Encoding", attrname, v )
             typ.encode (ctx, v)
 
 import new
@@ -1605,7 +1605,7 @@ class EXTERNAL_class (SEQUENCE_BASE):
                     if new_codec_fn != None:
                         ctx.push_codec ()
                         new_codec_fn ()
-            if trace_seq: print "Encoding", attrname, v
+            if trace_seq: print( "Encoding", attrname, v )
             typ.encode (ctx, v)
         if new_codec_fn != None:
             ctx.pop_codec ()
@@ -1686,8 +1686,8 @@ def register_oid (oid, asn):
 
 def check_EXTERNAL_ASN (so_far):
     if trace_external:
-        print "in check", so_far, EXTERNAL.klass
-        print "check 2", so_far.__class__
+        print( "in check", so_far, EXTERNAL.klass )
+        print( "check 2", so_far.__class__ )
     assert (so_far.__class__ == EXTERNAL.klass) # only called from w/in EXTERNAL
     dir_ref = getattr (so_far, 'direct_reference', None)
     if dir_ref == None:
@@ -1698,10 +1698,10 @@ def check_EXTERNAL_ASN (so_far):
     # spec as a workaround.  Let me know if you actually use
     # indirect_reference.
     if trace_external:
-        print "so_far", so_far, dir_ref
+        print( "so_far", so_far, dir_ref )
     rv = _oid_to_asn1_dict.get (dir_ref, None)
     if trace_external:
-        print rv, _oid_to_asn1_dict
+        print( rv, _oid_to_asn1_dict )
     return rv
 
 
@@ -1810,14 +1810,14 @@ class Tester:
         buf = encode (spec, val)
         if self.print_test:
             for byte in buf:
-                print hex (byte)[2:],
-            print
+                print( hex (byte)[2:], )
+            print()
 
         self.idc1.asn1_def = spec
         self.idc1.feed (buf)
         self.idc2.feed (buf)
-        print self.idc1.get_bytes_inprocess_count ()
-        print self.idc2.get_bytes_inprocess_count ()
+        print( self.idc1.get_bytes_inprocess_count () )
+        print( self.idc2.get_bytes_inprocess_count () )
 
 
         assert (self.idc1.get_bytes_inprocess_count () == 0)
@@ -1830,15 +1830,15 @@ class Tester:
         buf2 = encode (ANY, idec2)
         if self.print_test:
             for byte in buf2:
-                print hex (byte)[2:],
-            print
+                print( hex (byte)[2:], )
+            print()
 
         if self.print_test:
-            print "Val",repr(val),  "idec", repr (idec), "any", idec2
+            print( "Val",repr(val),  "idec", repr (idec), "any", idec2 )
 
         if assertflag:
             if buf2 != buf:
-                print "buf1, buf2 differ"
+                print( "buf1, buf2 differ" )
             assert (idec == val)
 
 
@@ -1882,9 +1882,9 @@ class Tester:
 
 
         bs_test = BitStringVal (17, 0x1B977L) # 011011100101110111
-        print "bs_test", bs_test
+        print( "bs_test", bs_test )
         for i in range (10):
-            print "bitstring", i, bs_test
+            print( "bitstring", i, bs_test )
             self.test (bitstring_spec, bs_test)
             bs_test.top_ind = bs_test.top_ind + 1
 
@@ -1977,7 +1977,7 @@ class Tester:
             Dubuisson_val = Dubuisson_cons_val
         else:
             Dubuisson_val = Dubuisson_prim_val
-        print encoded_val, Dubuisson_val
+        print( encoded_val, Dubuisson_val )
         assert (len (encoded_val) == len (Dubuisson_val))
         for v1, v2 in zip (encoded_val, Dubuisson_val):
             assert (v1 == v2)
@@ -1986,7 +1986,7 @@ class Tester:
         self.idc1.feed (Dubuisson_val)
         assert (self.idc1.val_count () == 1)
         idec = self.idc1.get_first_decoded ()
-        print idec
+        print( idec )
         assert (idec.top_ind == 12)
         assert (idec.bits == 0x16eb)
 
@@ -2000,9 +2000,9 @@ def run (print_flag):
     register_oid (SUTRS, GeneralString)
     for indef_len_encodings in [0,1]:
         for cons_encoding in [0,1]:
-            print "Starting", indef_len_encodings, cons_encoding
+            print( "Starting", indef_len_encodings, cons_encoding )
             t.run ()
-            print "byte offset", t.idc1.offset, t.idc2.offset
+            print( "byte offset", t.idc1.offset, t.idc2.offset )
 
 
 
@@ -2028,7 +2028,7 @@ if __name__ == '__main__':
     test.d.d1 = 1
     test.d.d2 = 1
     test_def.encode_per (pwc, test)
-    print "bit offset", pwc.bit_offset
-    print map (hex, pwc.get_data ())
+    print( "bit offset", pwc.bit_offset )
+    print( map (hex, pwc.get_data ()) )
     run (1)
 
