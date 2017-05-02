@@ -219,7 +219,9 @@ class Conn:
                 return self.decode_ctx.get_first_decoded ()
             try:
                 b = self.readproc ()
-                self.decode_ctx.feed (map (ord, b))
+                # print( 'ZZ b, ```{v}```; type(), ```{t}```'.format(v=b, t=type(b)) )
+                # self.decode_ctx.feed (map (ord, b))
+                self.decode_ctx.feed( list(b) )
             except asn1.BERError as val:
                 raise self.ProtocolError ('ASN1 BER', str(val))
 

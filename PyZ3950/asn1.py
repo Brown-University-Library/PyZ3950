@@ -398,6 +398,7 @@ class IncrementalDecodeCtx(CtxBase):
             self.cons = parent_typ.start_cons (tag, cur_len, parent_ctx)
             # methods: get_cur_def (), handle_val (val), finish ()
     def __init__ (self, asn1_def):
+        print( 'asn1_def type, ```{}```'.format(type(asn1_def)) )
         CtxBase.__init__ (self)
         self.offset = 0
         self.last_begin_offset = 0
@@ -464,7 +465,9 @@ class IncrementalDecodeCtx(CtxBase):
     def raise_error (self, descr):
         raise BERError (descr + " offset %d" % (self.offset,))
     def feed (self, data):
+        print( 'data, ```{}```'.format(data) )
         for char in data:
+            # print( 'char, ```{}```'.format(char) )
             if trace_byte:
                 print( hex (char), self.state, "offset:", self.offset )
             self.state_fns [self.state] (char)
@@ -1095,7 +1098,7 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
                 ctx.bytes_write ([ord(val[i])])
         else:
             ctx.len_write_known (len (val))
-            print( 'ZZ val, ```{v}```; type(), ```{t}```'.format(v=val, t=type(val)) )
+            # print( 'ZZ val, ```{v}```; type(), ```{t}```'.format(v=val, t=type(val)) )
             ctx.bytes_write (val)
     def encode_per (self, ctx, val):
         val = handle_charset (ctx, val)
