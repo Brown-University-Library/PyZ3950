@@ -15,7 +15,7 @@ class ZCQLConfig:
     contextSets = {'dc' : 'info:srw/cql-context-set/1/dc-v1.1',
                    'cql' : 'info:srw/cql-context-set/1/cql-v1.1',
                    'bath' : 'http://zing.z3950.org/cql/bath/2.0/',
-                   'zthes' : 'http://zthes.z3950.org/cql/1.0/', 
+                   'zthes' : 'http://zthes.z3950.org/cql/1.0/',
                    'ccg' : 'http://srw.cheshire3.org/contextSets/ccg/1.1/ ',
                    'rec' : 'info:srw/cql-context-set/2/rec-1.0',
                    'net' : 'info:srw/cql-context-set/2/net-1.0'}
@@ -112,7 +112,7 @@ class ZCQLConfig:
             "explainDatabase" : 25,
             "processingOID" : 26
             }
-  
+
     xd1 = {"title" : 1,
           "subject" : 2,
           "name" : 3,
@@ -207,7 +207,7 @@ class ZCQLConfig:
             relation.modifiers.append(modifierClauseType('string'))
         elif (struct == 104):
             relation.modifiers.append(modifierClauseType('uri'))
-            
+
         return (index, relation)
 
 zConfig = ZCQLConfig()
@@ -278,7 +278,7 @@ def rpn2cql(rpn, config=zConfig, attrSet=None):
     elif rpn[0] == 'type_1':
         q = rpn[1]
         return rpn2cql(q.rpn, config, q.attributeSet)
-    
+
 
 
 
@@ -321,7 +321,7 @@ class CSearchClause(SearchClause):
             self.relation.value = '='
             # Add 'word' relationModifier
             self.relation.modifiers.append(CModifierClause('cql.word'))
-            
+
             # Create CQL, parse it, walk new tree
             idxrel = "%s %s" % (self.index.toCQL(), self.relation.toCQL())
             text = []
@@ -393,9 +393,9 @@ class CBoolean(Boolean):
 
             prox.ordered = bool(self['ordered'])
             return ('op', ('prox', prox))
-                    
+
         return (op, None)
-    
+
 class CTriple(Triple):
 
     def toRPN(self, top=None):
@@ -478,11 +478,11 @@ class CIndex(Index):
                 # complex attribute for bib1
                 val = self.value
         else:
-            print "Can't resolve %s" % pf
+            print( "Can't resolve %s" % pf )
             raise(ValueError)
-            
+
         return {(set, 1) :  val}
-            
+
 
 class CRelation(Relation):
     def toRPN(self, top):
@@ -514,7 +514,7 @@ class CRelation(Relation):
 
         if self.value == 'exact':
             vals[3] = 1
-            vals[5] = 100 
+            vals[5] = 100
             # vals[6] = 3
         else:
             vals[3] = 3
@@ -526,7 +526,7 @@ class CRelation(Relation):
                 attrs[(z3950.Z3950_ATTRS_BIB1_ov, x)] = vals[x]
 
         return attrs
-        
+
 
 class CTerm(Term):
     def toRPN(self, top):
