@@ -55,17 +55,17 @@ API: let me know if that's wrong, and I'll try to do better.
 For some purposes (I think the only one is writing Z39.50 servers),
 you may want to use the functions in the z3950 module instead.  """
 
-from __future__ import nested_scopes    
+from __future__ import nested_scopes
 
 __author__ = 'Aaron Lav (asl2@pobox.com)'
 __version__ = '1.0' # XXX
 
 import getopt
-import sys 
+import sys
 
 # TODO:
 # finish lang/charset (requires charset normalization, confer w/ Adam)
-# implement piggyback   
+# implement piggyback
 # implement schema    (Non useful)
 # implement setname   (Impossible?)
 
@@ -148,7 +148,7 @@ class _ErrHdlr:
             raise ClientNotImplErr ("Unknown external diagnostic" + str (data))
         addinfo = data.addinfo [1] # don't care about v2 vs v3
         self.err (data.condition, addinfo, data.diagnosticSetId)
-    
+
 
 _record_type_dict = {}
 """Map oid to renderer, field-counter, and field-getter functions"""
@@ -179,7 +179,7 @@ class _AttrCheck:
             raise ClientNotImplError(attr)
         else:
             raise AttributeError (attr, val)
-    
+
 class Connection(_AttrCheck, _ErrHdlr):
     """Connection object"""
 
@@ -231,7 +231,7 @@ class Connection(_AttrCheck, _ErrHdlr):
 
     # and now, some defaults
     namedResultSets = 1
-    elementSetName = 'F' 
+    elementSetName = 'F'
     preferredRecordSyntax = 'USMARC'
     preferredMessageSize = 0x100000
     maximumRecordSize = 0x100000
@@ -253,7 +253,7 @@ class Connection(_AttrCheck, _ErrHdlr):
         """Establish connection to hostname:port.  kw contains initial
         values for options, and is useful for options which affect
         the InitializeRequest.  Currently supported values:
-        
+
         user                   Username for authentication
         password               Password for authentication
         group                  Group for authentication
@@ -264,7 +264,7 @@ class Connection(_AttrCheck, _ErrHdlr):
         implementationId       Id for client implementation
         implementationName     Name for client implementation
         implementationVersion  Version of client implementation
-        
+
         """
 
         self.host = host
@@ -278,16 +278,16 @@ class Connection(_AttrCheck, _ErrHdlr):
     def connect(self):
         self._resultSetCtr += 1
         self._lastConnectCtr = self._resultSetCtr
-        
+
         # Bump counters first, since even if we didn't reconnect
         # this time, we could have, and so any use of old connections
         # is an error.  (Old cached-and-accessed data is OK to use:
         # cached but not-yet-accessed data is probably an error, but
         # a not-yet-caught error.)
-        
-        if self._cli <> None and self._cli.sock <> None:
+
+        if self._cli != None and self._cli.sock != None:
             return
-        
+
         initkw = {}
         for attr in self.init_attrs:
             initkw[attr] = getattr(self, attr)
@@ -311,18 +311,18 @@ class Connection(_AttrCheck, _ErrHdlr):
                          'direct_reference') and
                 self._cli.initresp.userInformationField.direct_reference ==
                 oids.Z3950_USR_PRIVATE_OCLC_INFO_ov):
-# see http://www.oclc.org/support/documentation/firstsearch/z3950/fs_z39_config_guide/ for docs                
+# see http://www.oclc.org/support/documentation/firstsearch/z3950/fs_z39_config_guide/ for docs
                 oclc_info = self._cli.initresp.userInformationField.encoding [1]
                 # the docs are a little unclear, but I presume we're
                 # supposed to report failure whenever a failReason is given.
-                
+
                 if hasattr (oclc_info, 'failReason'):
                     raise UnexpectedCloseError ('OCLC_Info ',
                                                 oclc_info.failReason,
                                                 getattr (oclc_info, 'text',
                                                          ' no text given '))
-            
-        
+
+
 
     def search (self, query):
         """Search, taking Query object, returning ResultSet"""
@@ -337,7 +337,7 @@ class Connection(_AttrCheck, _ErrHdlr):
                                    **_extract_attrs (self, self.search_attrs))
         self._resultSetCtr += 1
         rs = ResultSet (self, recv, cur_rsn, self._resultSetCtr)
-        return rs        
+        return rs
     # and 'Error Code', 'Error Message', and 'Addt'l Info' methods still
     # eeded
     def scan (self, query):
@@ -358,7 +358,7 @@ class Connection(_AttrCheck, _ErrHdlr):
     def close (self):
         """Close connection"""
         self._cli.close ()
-        
+
     def sort (self, sets, keys):
         """ Sort sets by keys, return resultset interface """
         if (not self._cli):
@@ -386,7 +386,7 @@ class Connection(_AttrCheck, _ErrHdlr):
                 zk.missingValueAction = ('missingValueData', k.missingValueData)
             value = k.sequence
             if (k.type == 'accessPoint'):
-                if (value.typ <> 'RPN'):
+                if (value.typ != 'RPN'):
                     raise ValueError # XXX
                 l = z3950.SortKey['sortAttributes']()
                 l.id = value.query[1].attributeSet
@@ -409,7 +409,7 @@ class Connection(_AttrCheck, _ErrHdlr):
         self._resultSetCtr += 1
         if (hasattr(recv, 'diagnostics')):
             diag = recv.diagnostics[0][1]
-            self.err(diag.condition, diag.addinfo, diag.diagnosticSetId)            
+            self.err(diag.condition, diag.addinfo, diag.diagnosticSetId)
 
         if (not hasattr(recv, 'resultCount')):
             # First guess: sum of all input sets
@@ -536,7 +536,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         # _records is a dict indexed by preferredRecordSyntax of
         # dicts indexed by elementSetName of lists of records
         self._ensure_recs ()
-        
+
         # whether there are any records or not, there may be
         # nonsurrogate diagnostics.  _extract_recs will get them.
         if hasattr (self._searchResult, 'records'):
@@ -590,10 +590,10 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             raise ConnectionError ('Stale result set used')
         # XXX is this right?
         if (not self._conn.namedResultSets) and \
-           self._ctr <> self._conn._resultSetCtr:
+           self._ctr != self._conn._resultSetCtr:
             raise ServerNotImplError ('Multiple Result Sets')
         # XXX or this?
-    
+
     def _ensure_present (self, i):
         self._ensure_recs ()
         if self._get_rec (i) == None:
@@ -619,7 +619,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             # range (lbound, lbound + count).  If so, try
             # retrieving just one record. XXX could try
             # retrieving more, up to next cache bdary.
-            if i <> lbound and self._get_rec (i) == None:
+            if i != lbound and self._get_rec (i) == None:
                 presentResp  = self._conn._cli.present (
                     start = i + 1,
                     count = 1,
@@ -628,7 +628,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
                 self._extract_recs (presentResp.records, i)
         rec = self._records [self.preferredRecordSyntax][
             self.elementSetName][i]
-        if rec <> None and rec.is_surrogate_diag ():
+        if rec != None and rec.is_surrogate_diag ():
             rec.raise_exn ()
     def __getitem__ (self, i):
         """Ensure item is present, and return a Record"""
@@ -660,7 +660,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             # ignoring all but first error.
             diagRec = recs [0]
             self.err_diagrec (diagRec)
-        if (typ <> 'responseRecords'):
+        if (typ != 'responseRecords'):
             raise ProtocolError ("Bad records typ " + str (typ) + str (recs))
         for i,r in my_enumerate (recs):
             r = recs [i]
@@ -674,7 +674,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
                 dat = data.encoding
                 (typ, dat) = dat
                 if (oid == oids.Z3950_RECSYN_USMARC_ov):
-                    if typ <> 'octet-aligned':
+                    if typ != 'octet-aligned':
                         raise ProtocolError (
                             "Weird record EXTERNAL MARC type: " + typ)
                 rec = Record (oid, dat, dbname)
@@ -714,7 +714,7 @@ class SurrogateDiagnostic(_ErrHdlr):
 class Record:
     """Represent retrieved record.  'syntax' attribute is a string,
       'data' attribute is the data, which is:
-      
+
       USMARC   -- raw MARC data
       SUTRS    -- a string (possibly in the future unicode)
       XML      -- ditto
@@ -722,7 +722,7 @@ class Record:
       EXPLAIN  -- a hard-to-describe format (contact me if you're actually \
 using this)
       OPAC     -- ditto
-      
+
       Other representations are not yet defined."""
     def __init__ (self, oid, data, dbname):
         """Only for use by ResultSet"""
@@ -775,7 +775,7 @@ def render_OPAC (opac_data):
                 s_list = []
                 if isinstance (item, asn1.StructBase):
                     for attr, val in item.__dict__.items ():
-                        if attr [0] <> '_':
+                        if attr [0] != '_':
                             s_list.append ("%s%s: %s" % (
                                 "\t" * level, attr, "\n".join(render (val, level + 1))))
                 elif (isinstance (item, type ([])) and len (item) > 0
@@ -821,7 +821,7 @@ _RecordType ('EXPLAIN', z3950.Z3950_RECSYN_EXPLAIN_ov,
 class ScanSet (_AttrCheck, _ErrHdlr):
     """Hold result of scan.
     """
-    zoom_to_z3950 = { # XXX need to provide more processing for attrs, alt 
+    zoom_to_z3950 = { # XXX need to provide more processing for attrs, alt
             'freq'   : 'globalOccurrences',
             'display':  'displayTerm',
             'attrs'  :  'suggestedAttributes',
@@ -870,7 +870,7 @@ class ScanSet (_AttrCheck, _ErrHdlr):
         freq: integer
         display: string
         attrs: currently z3950 structure, should be string of attributes
-        alt: currently z3950 structure, should be [string of attrs, term] 
+        alt: currently z3950 structure, should be [string of attrs, term]
         other: currently z3950 structure, dunno what the best Python representation would be
         """
         f = self.zoom_to_z3950 [field]
@@ -883,7 +883,7 @@ class ScanSet (_AttrCheck, _ErrHdlr):
         d = {}
         for k,v in self.zoom_to_z3950.items ():
             val = getattr (r, v, None)
-            if val <> None:
+            if val != None:
                 d[k] = val
         d["term"] = self.get_term (i)
         return d
@@ -923,14 +923,14 @@ if __name__ == '__main__':
             esns = val.split (',')
         elif opt == '-v':
             validation = val.split (',')
-            
+
     rv = z3950.host_dict.get (host)
     if rv == None:
         (name, port, dbname) = host.split (':')
         port = int (port)
     else:
         (name, port, dbname) = rv
-    
+
     conn = Connection (name, port)
     conn.databaseName = dbname
 
@@ -943,7 +943,7 @@ if __name__ == '__main__':
                 for syn in fmts:
                     print "Syntax", syn, "Esn", esn
                     res.preferredRecordSyntax = syn
-                    if esn <> 'NONE':
+                    if esn != 'NONE':
                         res.elementSetName = esn
                     try:
                         for r in res:
@@ -956,7 +956,7 @@ if __name__ == '__main__':
         except ZoomError, err:
             print "Zoom exception", err.__class__, err
 
-                    
+
 
     if query == '':
         while 1:
