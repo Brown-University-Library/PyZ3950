@@ -91,7 +91,7 @@ def try_get_iso10646_oid (charset_name):
 
 def asn_charset_to_name (charset_tup):
     if trace_charset:
-        print "asn_charset_to_name", charset_tup
+        print( "asn_charset_to_name", charset_tup )
     charset_name = None
     (typ, charset) = charset_tup
     if typ == 'iso10646':
@@ -106,7 +106,7 @@ def asn_charset_to_name (charset_tup):
                 if enctyp == 'octet-aligned':
                     charset_name = encval
     if trace_charset:
-        print "returning charset", charset_name
+        print( "returning charset", charset_name )
     return charset_name
 
 
@@ -170,7 +170,7 @@ elements in the ASN.1 are OPTIONAL.
         pcs = getattr (proposal, 'proposedCharSets', None)
         if pcs != None:
             if trace_charset:
-                print "pcs", pcs
+                print( "pcs", pcs )
             self.charset_list = []
 
             for charset in pcs:
@@ -218,7 +218,7 @@ class CharsetNegotResp:
 
 def get_charset_negot (init): # can be passed either InitializeRequest or InitializeResponse
     if trace_charset:
-        print init
+        print( init )
     if not init.options ['negotiation']:
         return None
     otherInfo = []
@@ -231,7 +231,7 @@ def get_charset_negot (init): # can be passed either InitializeRequest or Initia
 
     for oi in otherInfo:
         if trace_charset:
-                print oi
+                print( oi )
         (typ, val) =  oi.information
         if typ == 'externallyDefinedInfo':
             if val.direct_reference == Z3950_NEG_CHARSET3_ov:
@@ -252,7 +252,7 @@ def set_charset_negot (init, val, v3_flag):
     oi_elt.information = ('externallyDefinedInfo', negot)
     other_info = [oi_elt]
     if trace_charset:
-        print v3_flag, oi_elt
+        print( v3_flag, oi_elt )
 
     if v3_flag:
         init.otherInfo = other_info
