@@ -127,7 +127,7 @@ def parse_sub (field):
             return (' ', ' ', [])
         return None
 
-    if field [2] <> sep:
+    if field [2] != sep:
         print "Bad field [2]", repr (field[2])
         return None
     ind1 = field[0]
@@ -778,7 +778,7 @@ class MARC:
 
             if (f8 and len(f8[0]) > 18 ):
                 loc = f8[0][15:18]
-                if (loc <> '   ' and loc <> '|||'):
+                if (loc != '   ' and loc != '|||'):
                     xml.append('    <place><placeTerm type="code" authority="marccountry">%s</placeTerm></place>\n' % (loc))
 
             if (f44):
@@ -801,7 +801,7 @@ class MARC:
                 f8type = f8[0][6]
                 if (f8type in ['e', 'p', 'r', 's', 't']):
                     date = f8[0][7:11]
-                    if (date <> '    '):
+                    if (date != '    '):
                         xml.append('    <dateIssued encoding="marc">%s</dateIssued>\n' % (date))
                 if (f8type in ['c', 'd', 'i', 'k', 'm', 'u', 'q']):
                     if (f8type == 'q'):
@@ -809,10 +809,10 @@ class MARC:
                     else:
                         attrib = ""
                     start = f8[0][7:11]
-                    if (start <> '    '):
+                    if (start != '    '):
                         xml.append('    <dateIssued point="start" encoding="marc"%s>%s</dateIssued>\n' % (attrib, start))
                     end = f8[0][11:15]
-                    if (end <> '    '):
+                    if (end != '    '):
                         xml.append('    <dateIssued point="end" encoding="marc"%s>%s</dateIssued>\n' % (attrib, end))
 
             if (f260):
@@ -864,7 +864,7 @@ class MARC:
         # --- Language ---
         if (f8 and len(f8[0]) > 38):
             lang = f8[0][35:38]
-            if (lang <> '   '):
+            if (lang != '   '):
                 xml.append('  <language><languageTerm type="code" authority="iso639-2b">%s</languageTerm></language>\n' % (lang))
         if self.fields.has_key(41):
             a = two = ''
@@ -1145,7 +1145,7 @@ class MARC:
                         xml.append('    <recordContentSource authority="marcorg">%s</recordContentSource>\n' % (escape(sub[1])))
         if (self.fields.has_key(8)):
             date = self.fields[8][0][0:6]
-            if (date <> '      '):
+            if (date != '      '):
                 xml.append('    <recordCreationDate encoding="marc">%s</recordCreationDate>\n' % (date))
 
         if (self.fields.has_key(1)):
