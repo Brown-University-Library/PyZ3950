@@ -61,7 +61,7 @@ Official Specification</a></li>
 from __future__ import nested_scopes
 import getopt
 import sys
-import exceptions
+# import exceptions
 import random
 import socket
 import string
