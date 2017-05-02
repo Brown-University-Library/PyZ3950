@@ -1323,13 +1323,13 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
         def handle_val (self, val):
             self.lst.append (val)
         def finish (self):
-            bits = 0L
+            bits = 0
             for v in self.lst[:-1]:
-                bits *= 256L
+                bits *= 256
                 assert (v.top_ind == 7)
                 bits += v.bits
             v = self.lst [-1]
-            bits *= 256L
+            bits *= 256
 
             pad_count = 7 - v.top_ind
             bits = bits >> pad_count
@@ -1880,7 +1880,7 @@ class Tester:
         self.test (real_spec2, rval)
 
 
-        bs_test = BitStringVal (17, 0x1B977L) # 011011100101110111
+        bs_test = BitStringVal (17, 0x1B977) # 011011100101110111
         print( "bs_test", bs_test )
         for i in range (10):
             print( "bitstring", i, bs_test )
