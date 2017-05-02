@@ -40,7 +40,7 @@ try:
         }
 
 except ImportError as err:
-    print "Error importing (OK during setup)", err
+    print( "Error importing (OK during setup)", err )
     in_setup = 1
 
 class QuerySyntaxError(Exception): pass
@@ -344,13 +344,13 @@ def testlex (s):
         token = lexer.token ()
         if not token:
             break
-        print token
+        print( token )
 
 def testyacc (s):
     copylex = lexer.__copy__ ()
     ast = yacc.parse (s, lexer = copylex)
-    print "AST:", ast
-    print "RPN Query:", ast_to_rpn (ast)
+    print( "AST:", ast )
+    print( "RPN Query:", ast_to_rpn (ast) )
 
 if __name__ == '__main__':
     testfn = testyacc
