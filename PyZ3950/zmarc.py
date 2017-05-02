@@ -8,7 +8,7 @@ which takes binary MARC data.
 # http://www.pobox.com/~asl2/software/PyZ3950/
 # and is licensed under the X Consortium license:
 # Copyright (c) 2001, Aaron S. Lav, asl2@pobox.com
-# All rights reserved. 
+# All rights reserved.
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -18,7 +18,7 @@ which takes binary MARC data.
 # to whom the Software is furnished to do so, provided that the above
 # copyright notice(s) and this permission notice appear in all copies of
 # the Software and that both the above copyright notice(s) and this
-# permission notice appear in supporting documentation. 
+# permission notice appear in supporting documentation.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -28,7 +28,7 @@ which takes binary MARC data.
 # INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING
 # FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
-# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # Except as contained in this notice, the name of a copyright holder
 # shall not be used in advertising or otherwise to promote the sale, use
@@ -52,7 +52,7 @@ recsep = '\x1d'
 
 
 # Attributes for SGML DTD (!!!)  If not present, then I1 I2
-attrHash = { 22 : ['ISDSLvl', 'I2'], 
+attrHash = { 22 : ['ISDSLvl', 'I2'],
              24 : ['StdNum', 'DiffInd'],    28 : ['PubNmTyp', 'NteAdEnty'],
              33 : ['DateType', 'EventTyp'], 34 : ['ScapeTyp', 'I2'],
              41 : ['TransInd', 'I2'],       45 : ['TimePrd', 'I2'],
@@ -139,7 +139,7 @@ def parse_sub (field):
             continue
         sublist.append ((sub[0], string.strip(sub[1:])))
     return (ind1, ind2, sublist)
-    
+
 class MARC:
     """Parses data into 'fields' attribute, indexed by field number.
     Each value is a list.  For fixed fields, it's a list of the string data
@@ -236,7 +236,7 @@ class MARC:
             return string.atoi (bit)
         except:
             raise MarcError("Un-intable string: %r in %r" % (bit, self.marc))
-        
+
     def get_MARC (self):
         hdrlist = [' '] * 24
         zerostr = self.fields [0][0]
@@ -309,7 +309,7 @@ class MARC:
     def toOAIMARC(self):
         """Convert record to OAI MARC XML Schema.
         Note Well that OAI-MHP 2.0 recommends using MarcXML"""
-        
+
         keys = self.fields.keys()
         keys.sort()
         marc = self.get_MARC()
@@ -332,7 +332,7 @@ class MARC:
 
         xmllist.append("</oai_marc>")
         xml = ''.join(xmllist)
-        return xml        
+        return xml
 
     def sgml_processCode(self, k):
         if attrHash.has_key(k):
@@ -357,7 +357,7 @@ class MARC:
             sgmllist.append('        </fld%s>\n' % (keystr))
         sgml = ''.join(sgmllist)
         return sgml
-        
+
 
     def toSGML(self):
         """ Convert record to USMARC SGML """
@@ -414,7 +414,7 @@ class MARC:
                 fld9xx.append(k)
 
 
-                 
+
         marc = self.get_MARC()
 
         sgml = ["<usmarc>\n"]
@@ -514,7 +514,7 @@ class MARC:
         sgml.append("  </varflds>\n")
         sgml.append("</usmarc>")
         return ''.join(sgml)
-        
+
 
     def toSimpleDC(self):
         """ Convert Marc into DC according to LC Crosswalk """
@@ -558,7 +558,7 @@ class MARC:
                     if d:
                         a += " (" + d + ")"
                     xml.append("  <creator>%s</creator>\n" % (a))
-        
+
         # Subject -> 600,610, 611, 630, 650, 653
         # Just dump in directly...
         subjectList = [600, 610, 611, 630, 650, 653]
@@ -570,7 +570,7 @@ class MARC:
                         subject += sub[1] + " -- "
                     subject = subject[:-4]
                     xml.append("  <subject>%s</subject>\n" % (subject))
-        
+
 
         # Publisher -> 260$a$b
         if self.fields.has_key(260):
@@ -618,7 +618,7 @@ class MARC:
                     desc += sub[1] + " "
                 desc = desc[:-1]
                 xml.append("  <description>%s</description>\n" % (desc))
-                
+
         xml.append("</dc>")
         return ''.join(xml)
 
@@ -671,7 +671,7 @@ class MARC:
             if (subf.has_key('p')):
                 xml.append('    <partName>%s</partName>\n' % (subf['p']))
             xml.append('  </titleInfo>\n')
-                
+
 
         if self.fields.has_key(246):
             full = self.fields[246][0]
@@ -755,7 +755,7 @@ class MARC:
             # XXX LONG set of checks for type and various 008 positions :(
             if (len(instance) > 33 and instance[33] == '0'):
                 xml.append('  <genre authority="marcgt">non fiction</genre>\n')
-                
+
         if self.fields.has_key(655):
             for instance in self.fields[655]:
                 gf = ''
@@ -778,7 +778,7 @@ class MARC:
 
             if (f8 and len(f8[0]) > 18 ):
                 loc = f8[0][15:18]
-                if (loc <> '   ' and loc <> '|||'): 
+                if (loc <> '   ' and loc <> '|||'):
                     xml.append('    <place><placeTerm type="code" authority="marccountry">%s</placeTerm></place>\n' % (loc))
 
             if (f44):
@@ -786,7 +786,7 @@ class MARC:
                     if (s[0] == 'c'):
                         xml.append('    <place><placeTerm type="code" authority="iso3166">%s</placeTerm></place>\n' % (escape(s[1])))
             if (f260):
-                instance = self.fields[260][0][2]            
+                instance = self.fields[260][0][2]
                 subf260 = {}
                 for sub in instance:
                     subf260[sub[0]] = escape(sub[1])
@@ -840,7 +840,7 @@ class MARC:
                     if (s[0] == 'a'):
                         xml.append('    <edition>%s</edition>\n' % (escape(s[1])))
                         break
-            
+
             if (self.fields.has_key(0) and len(self.fields[0][0]) > 2):
                 f0type = self.fields[0][0][2]
                 if (f0type in ['b', 'i', 's']):
@@ -859,7 +859,7 @@ class MARC:
                     subf321[s[0]] = escape(s[1])
                 xml.append('    <frequency>%s %s</frequency>\n' % (subf321['a'], subf321['b']))
             xml.append('  </originInfo>\n')
-                
+
 
         # --- Language ---
         if (f8 and len(f8[0]) > 38):
@@ -936,8 +936,8 @@ class MARC:
             546 : 'language',
             561 : 'ownership',
             511 : 'performers',
-            518 : 'venue'} # and 
-            
+            518 : 'venue'} # and
+
         for field, typ in notes_to_typ.items ():
             if (self.fields.has_key(field)):
                 for n in self.fields[field]:
@@ -1030,7 +1030,7 @@ class MARC:
                                 xml.append('    <temporal>%s</temporal>\n' % (val))
                             elif sub[0] == 'z':
                                 xml.append('    <geographic>%s</geographic>\n' % (val))
-                                
+
                     xml.append("  </subject>\n")
         if (self.fields.has_key(45)):
             full = self.fields[45][0]
@@ -1038,7 +1038,7 @@ class MARC:
                 for x in full[2]:
                     if (x[0] == 'b'):
                         xml.append('  <subject><temporal encoding="iso8601">%s</temporal></subject>\n' % (escape(x[1])))
-                        
+
         if (self.fields.has_key(43)):
             for sub in self.fields[43][0][2]:
                 if (sub[0] == 'a'):
@@ -1059,7 +1059,7 @@ class MARC:
                 elif (sub[0] == 'd'):
                     xml.append('    <city>%s</city>\n' % (val))
             xml.append('  </hierarchicalGeographic></subject>')
-            
+
 
         if (self.fields.has_key(255)):
             subf = {}
@@ -1108,8 +1108,8 @@ class MARC:
                 for s in full[2]:
                     if (s[0] == 'a'):
                         xml.append('  <classification authority="%s">%s</classification>\n' % (auth, escape(s[1])))
-                
-                    
+
+
         # XXX:  relatedItem, 7XX
 
         # --- Identifier ---
@@ -1185,7 +1185,7 @@ class MARC8_to_Unicode:
     please inform me, asl2@pobox.com."""
 
 
-    
+
     basic_latin = 0x42
     ansel = 0x45
     def __init__ (self, G0 = basic_latin, G1 = ansel):
@@ -1194,7 +1194,7 @@ class MARC8_to_Unicode:
 
     def is_multibyte (self, charset):
         return charset == 0x31
-        
+
     def translate (self, s):
         uni_list = []
         combinings = []
@@ -1212,7 +1212,7 @@ class MARC8_to_Unicode:
                     pos = pos + 4
                     continue
             mb_flag = self.is_multibyte (self.g0)
-                
+
             if mb_flag:
                 d = (ord (s[pos]) * 65536 +
                      ord (s[pos+1]) * 256 +
@@ -1221,17 +1221,17 @@ class MARC8_to_Unicode:
             else:
                 d = ord (s[pos])
                 pos += 1
-                
+
             if (d < 0x20 or
                 (d > 0x80 and d < 0xa0)):
                 uni = unichr (d)
                 continue
-            
+
             if d > 0x80 and not mb_flag:
                 (uni, cflag) = marc_to_unicode.codesets [self.g1] [d]
             else:
                 (uni, cflag) = marc_to_unicode.codesets [self.g0] [d]
-                
+
             if cflag:
                 combinings.append (unichr (uni))
             else:
@@ -1241,11 +1241,11 @@ class MARC8_to_Unicode:
                     combinings = []
         # what to do if combining chars left over?
         uni_str = u"".join (uni_list)
-        
-        # unicodedata.normalize not available until Python 2.3        
+
+        # unicodedata.normalize not available until Python 2.3
         if hasattr (unicodedata, 'normalize'):
             uni_str = unicodedata.normalize ('NFC', uni_str)
-            
+
         return uni_str
 
 def test_convert (s, enc):
@@ -1256,18 +1256,18 @@ def test_convert (s, enc):
 
     print repr (converted)
 
-        
+
 
 if __name__ == '__main__':
     # My console is usually set to iso-8859-1.  Sorry if yours is different.
     test_convert('''The  oldest cuisine in the world : cooking in
     Mesopotamia  / Jean Bott\xe2ero ; translated by Teresa Lavender Fagan.''',
                  'iso-8859-1')
-    
+
     test_convert (
         """$6 245-02/$1$a \x1b$$1!M>!`o!#!KPa!\\O!#!\x1b((B/$c \x1b$$1!1?!R_!#!-bb!#!!Gm!>`!#!\x1b((B; \x1b$$1!RY!YF!#!9Z6!#!!J(!Yi!#!\x1b((B;\x1b$$1!#!!BX!O>!#!!4`!4)!#!!\\e!#!!Hk!:M!#!\x1b((B... [et al.] ; \x1b$$1!Iq!MH!#!!9%!];!#!!KG!#!\x1b((B= Great garnishes / author, Huang Su-Huei ; translator, Yen-Jen Lai ; collaborators, Cheng-Tzu Chiu ... [et al.] ; photographers, Aki Ohno.""",
         'utf-8')
-    
+
 
     for f in sys.argv[1:]:
         marc_file = open(f, 'rb')
