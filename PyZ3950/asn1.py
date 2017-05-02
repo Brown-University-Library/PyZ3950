@@ -781,7 +781,7 @@ class BERWriteCtx(WriteCtx):
 
     def raise_error (self, descr):
         offset = len (self.buf)
-        raise BERError, (descr, offset)
+        raise BERError( (descr, offset) )
 
 Ctx = BERWriteCtx # Old synonym for historical reasons
 
@@ -882,8 +882,7 @@ class EXPLICIT (TAG):
             self.ind += 1
         def finish (self):
             if self.ind != 1:
-                raise BERError ("wrong number of elts %d for EXPLICIT %s" %
-                                (self.ind, self.typ))
+                raise BERError( "wrong number of elts %d for EXPLICIT %s" % (self.ind, self.typ) )
             return self.tmp
 
     def start_cons (self, tag, cur_len, ctx):
@@ -1150,7 +1149,7 @@ class CHOICE:
         for (cname, ctyp) in self.choice:
             if key == cname:
                 return ctyp
-        raise KeyError (key)
+        raise KeyError( key )
     def __setitem__ (self, key, val): # warning: may raise KeyError!
         for i in range (len (self.choice)):
             (cname, ctyp) = self.choice [i]
@@ -1195,7 +1194,7 @@ class CHOICE:
                 return
         err =  ("Bogus, no arm for " + repr (name) + " val " +
                 repr(val))
-        raise EncodingError,err
+        raise EncodingError( err )
 
 
 # Note: ANY can be any type, not just OCTSTRING.  The ASN.1 spec
@@ -1406,9 +1405,9 @@ class SeqConsElt:
                 self.index = i
                 return typ
             if not optional:
-                raise BERError ("SEQUENCE tag %s not found in %s (%d/%d)" %
+                raise BERError( "SEQUENCE tag %s not found in %s (%d/%d)" %
                                 (str (seen_tag), str (self.seq),
-                                 self.index, i))
+                                 self.index, i) )
 
         # OK, we fell off the end.  Must just be absent OPTIONAL types.
         return None
@@ -1420,9 +1419,9 @@ class SeqConsElt:
         for i in range (self.index, len (self.seq.seq)):
             (name, typ, optional) = self.seq.seq[i]
             if not optional:
-                raise BERError (
+                raise BERError(
                     "non-opt data missing from seq %s at %d (so far %s)" %
-                    (str (self.seq), self.index, str (self.tmp)))
+                    (str (self.seq), self.index, str (self.tmp)) )
         return self.tmp
 
 class SEQUENCE_BASE (ELTBASE):
@@ -1458,7 +1457,7 @@ class SEQUENCE_BASE (ELTBASE):
             if self.seq[i][0] == key:
                 self.seq[i] = self.mung (val)
                 return
-        raise "not found" + str (key)
+        raise Exception("not found" + str (key) )
     def fulfill_promises (self, promises):
         for i in range (len(self.seq)):
             (name, typ, optional) = self.seq[i]
@@ -1486,9 +1485,9 @@ class SEQUENCE_BASE (ELTBASE):
                 # XXX need to handle DEFAULT,not encode
             except AttributeError:
                 if optional: continue
-                else: raise EncodingError, ("Val " +  repr(val) +
+                else: raise EncodingError( "Val " +  repr(val) +
                                             " missing attribute: " +
-                                            str(attrname))
+                                            str(attrname) )
             if trace_seq: print( "Encoding", attrname, v )
             typ.encode_per (ctx, v)
 
@@ -1499,9 +1498,9 @@ class SEQUENCE_BASE (ELTBASE):
                 v = getattr (val, attrname)
             except AttributeError:
                 if optional: continue
-                else: raise EncodingError, ("Val " +  repr(val) +
+                else: raise EncodingError( "Val " +  repr(val) +
                                             " missing attribute: " +
-                                            str(attrname))
+                                            str(attrname) )
             if trace_seq: print( "Encoding", attrname, v )
             typ.encode (ctx, v)
 
@@ -1592,7 +1591,7 @@ class EXTERNAL_class (SEQUENCE_BASE):
                 v = getattr (val, attrname)
             except AttributeError:
                 if optional: continue
-                else: raise EncodingError, ("Val " +  repr(val) +
+                else: raise EncodingError("Val " +  repr(val) +
                                             " missing attribute: " +
                                             str(attrname))
             if attrname == 'encoding' and v[0] == 'single-ASN1-type':
