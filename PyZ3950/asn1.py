@@ -1440,7 +1440,10 @@ class SEQUENCE_BASE (ELTBASE):
             self.seq.append (self.mung (e))
         self.extensible = 0
     def __call__ (self, **kw):
-        return apply (self.klass, (), kw)
+        # return apply (self.klass, (), kw)
+        return_val = self.klass( *(), **kw )   # <http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html> (search `apply`)
+        return return_val
+
     def mung (self, e):
         if len (e) == 3:
             (name, tag, typ) = e
