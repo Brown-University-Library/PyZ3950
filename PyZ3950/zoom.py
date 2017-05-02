@@ -452,7 +452,7 @@ Supported query types:  CCL, S-CCL, CQL, S-CQL, PQF, C2, ZSQL, CQL-TREE
            self.typ = 'RPN'
            try:
                self.query = ccl.mk_rpn_query (query)
-           except ccl.QuerySyntaxError, err:
+           except ccl.QuerySyntaxError as err:
                raise QuerySyntaxError (str(err))
         elif typ == 'S-CCL': # server-side ccl
             self.typ = typ
@@ -472,7 +472,7 @@ Supported query types:  CCL, S-CCL, CQL, S-CQL, PQF, C2, ZSQL, CQL-TREE
                 rpnq.attributeSet = oids.Z3950_ATTRS_BIB1_ov
                 rpnq.rpn = q.toRPN()
                 self.query = ('type_1', rpnq)
-            except SRWDiagnostics.SRWDiagnostic, err:
+            except SRWDiagnostics.SRWDiagnostic as err:
                 raise err
             except:
                 raise QuerySyntaxError
@@ -506,7 +506,7 @@ Supported query types:  CCL, S-CCL, CQL, S-CQL, PQF, C2, ZSQL, CQL-TREE
                 rpnq.attributeSet = oids.Z3950_ATTRS_BIB1_ov
                 rpnq.rpn = query.toRPN()
                 self.query = ('type_1', rpnq)
-            except SRWDiagnostics.SRWDiagnostic, err:
+            except SRWDiagnostics.SRWDiagnostic as err:
                 raise err
             except:
                 raise QuerySyntaxError
@@ -557,7 +557,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             try:
                 kw['recsyn'] = _record_type_dict [
                     self.preferredRecordSyntax].oid
-            except KeyError, err:
+            except KeyError as err:
                 raise ClientNotImplError ('Unknown record syntax ' +
                                           self.preferredRecordSyntax)
         if hasattr (self, 'elementSetName'):
@@ -948,12 +948,12 @@ if __name__ == '__main__':
                     try:
                         for r in res:
                             print str(r)
-                    except ZoomError, err:
+                    except ZoomError as err:
                         print "Zoom exception", err.__class__, err
 #           res.delete ()
 # Looks as if Oxford will close the connection if a delete is sent,
 # despite claiming delete support (verified with yaz client, too).
-        except ZoomError, err:
+        except ZoomError as err:
             print "Zoom exception", err.__class__, err
 
 
