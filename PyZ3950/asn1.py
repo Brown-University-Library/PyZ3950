@@ -398,7 +398,7 @@ class IncrementalDecodeCtx(CtxBase):
             self.cons = parent_typ.start_cons (tag, cur_len, parent_ctx)
             # methods: get_cur_def (), handle_val (val), finish ()
     def __init__ (self, asn1_def):
-        print( 'asn1_def type, ```{}```'.format(type(asn1_def)) )
+        # print( 'asn1_def type, ```{}```'.format(type(asn1_def)) )
         CtxBase.__init__ (self)
         self.offset = 0
         self.last_begin_offset = 0
@@ -464,8 +464,9 @@ class IncrementalDecodeCtx(CtxBase):
 
     def raise_error (self, descr):
         raise BERError (descr + " offset %d" % (self.offset,))
+
     def feed (self, data):
-        print( 'data, ```{}```'.format(data) )
+        # print( 'data, ```{}```'.format(data) )
         for char in data:
             # print( 'char, ```{}```'.format(char) )
             if trace_byte:

@@ -84,7 +84,8 @@ asn1.register_oid (oids.Z3950_QUERY_SQL, z3950.SQLQuery)
 
 
 def my_enumerate (l): # replace w/ enumerate when we go to Python 2.3
-    return zip (range (len (l)), l)
+    # return zip (range (len (l)), l)
+    return list( zip (range (len (l)), l) )
 
 trace_extract = 0
 """trace extracting records from search/present reqs"""
@@ -326,6 +327,7 @@ class Connection(_AttrCheck, _ErrHdlr):
 
     def search (self, query):
         """Search, taking Query object, returning ResultSet"""
+        print( 'ZZ query, ```{v}```; type(), ```{t}```'.format(v=query, t=type(query)) )
         if (not self._cli):
             self.connect()
         assert (query.typ in self._queryTypes)
@@ -337,6 +339,7 @@ class Connection(_AttrCheck, _ErrHdlr):
                                    **_extract_attrs (self, self.search_attrs))
         self._resultSetCtr += 1
         rs = ResultSet (self, recv, cur_rsn, self._resultSetCtr)
+        print( 'ZZ rs, ```{v}```; type(), ```{t}```'.format(v=rs, t=type(rs)) )
         return rs
     # and 'Error Code', 'Error Message', and 'Addt'l Info' methods still
     # eeded
@@ -541,6 +544,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         # nonsurrogate diagnostics.  _extract_recs will get them.
         if hasattr (self._searchResult, 'records'):
             self._extract_recs (self._searchResult.records, 0)
+
     def __getattr__ (self, key):
         """Forward attribute access to Connection if appropriate"""
         # if self.__dict__.has_key (key):
@@ -549,6 +553,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         if key in self.inherited_elts:
             return getattr (self._conn, key) # may raise AttributeError
         raise AttributeError (key)
+
     def _make_keywords (self):
         """Set up dict of parms for present request"""
         kw = {}
@@ -564,14 +569,18 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         if hasattr (self, 'elementSetName'):
             kw['esn'] = ('genericElementSetName', self.elementSetName)
         return kw
+
     def __len__ (self):
         """Get number of records"""
         return self._searchResult.resultCount
+
     def _pin (self, i):
         """Handle negative indices"""
         if i < 0:
             return i + len (self)
+        print( '_pin i, `{}`'.format(i) )
         return i
+
     def _ensure_recs (self):
         # if not self._records.has_key (self.preferredRecordSyntax):
         if not self.preferredRecordSyntax in self._records:
@@ -584,8 +593,10 @@ class ResultSet(_AttrCheck, _ErrHdlr):
                 self.elementSetName] = [None] * len (self)
 
     def _get_rec (self, i):
-        return self._records [self.preferredRecordSyntax][
-            self.elementSetName][i]
+        print( '_get_rec i, `{}`'.format(i) )
+        # return self._records [self.preferredRecordSyntax][self.elementSetName][i]
+        return_val = self._records [self.preferredRecordSyntax][self.elementSetName][int(i)]
+        return return_val
 
     def _check_stale (self):
         if self._ctr < self._conn._lastConnectCtr:
@@ -597,6 +608,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         # XXX or this?
 
     def _ensure_present (self, i):
+        print( '_ensure_present i, `{}`'.format(i) )
         self._ensure_recs ()
         if self._get_rec (i) == None:
             self._check_stale ()
@@ -632,15 +644,19 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             self.elementSetName][i]
         if rec != None and rec.is_surrogate_diag ():
             rec.raise_exn ()
+
     def __getitem__ (self, i):
         """Ensure item is present, and return a Record"""
+        print( '__getitem__ i, `{}`'.format(i) )
         i = self._pin (i)
         if i >= len (self):
             raise IndexError
         self._ensure_present (i)
         return self._records [self.preferredRecordSyntax][
             self.elementSetName][i]
+
     def __getslice__(self, i, j):
+        print( '__getslice__ i, `{}`'.format(i) )
         i = self._pin (i)
         j = self._pin (j)
         if j > len (self):
@@ -651,6 +667,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             return []
         return self._records[self.preferredRecordSyntax][
             self.elementSetName] [i:j]
+
     def _extract_recs (self, records, lbound):
         (typ, recs) = records
         if trace_extract:
@@ -665,6 +682,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
         if (typ != 'responseRecords'):
             raise ProtocolError ("Bad records typ " + str (typ) + str (recs))
         for i,r in my_enumerate (recs):
+            print( '_extract_recs i, `{}`'.format(i) )
             r = recs [i]
             dbname = getattr (r, 'name', '')
             (typ, data) = r.record
@@ -685,6 +703,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
                                      (str (typ), str(data)))
             self._records[self.preferredRecordSyntax][
                 self.elementSetName][lbound + i] = rec
+
     def delete (self): # XXX or can I handle this w/ a __del__ method?
         """Delete result set"""
         res = self._conn._cli.delete (self._resultSetName)
@@ -770,6 +789,7 @@ def render_OPAC (opac_data):
     else:
         s_list.append ("Unknown bibliographicRecord OID: " + str(biblio_oid))
     for i, hd in my_enumerate (opac_data.holdingsData):
+        print( 'render_OPAC i, `{}`'.format(i) )
         typ, data = hd
         s_list.append ('Holdings %d:' % (i,))
         if typ == 'holdingsAndCirc':
@@ -844,6 +864,7 @@ class ScanSet (_AttrCheck, _ErrHdlr):
         """Return number of entries"""
         return self._scanresp.numberOfEntriesReturned
     def _get_rec (self, i):
+        print( 'ScanSet _get_rec i, `{}`'.format(i) )
         if (not hasattr(self._scanresp.entries, 'entries')):
             raise IndexError
         t = self._scanresp.entries.entries[i]
