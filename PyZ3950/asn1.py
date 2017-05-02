@@ -632,7 +632,7 @@ class WriteCtx (CtxBase):
         elif isinstance (data, type ('')):
             self.buf.fromstring (data)
         else:
-            raise EncodingError, "Bad type to bytes_write"
+            raise EncodingError( "Bad type to bytes_write" )
 
 BYTE_BITS = 8
 
