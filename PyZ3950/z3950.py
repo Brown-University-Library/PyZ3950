@@ -363,7 +363,7 @@ class Server (Conn):
             if charset_name != None:
                 try:
                     codecs.lookup (charset_name)
-                except LookupError, l:
+                except LookupError as l:
                     charset_name = None
             csresp = CharsetNegotResp (
                 charset_name,
