@@ -9,6 +9,6 @@ query = zoom.Query ('CCL', 'ti="1066 and all that"')
 
 res = conn.search (query)
 for r in res:
-    print r
+    print( r )
 conn.close ()
 
