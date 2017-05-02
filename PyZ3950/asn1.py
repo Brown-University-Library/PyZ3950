@@ -1504,7 +1504,8 @@ class SEQUENCE_BASE (ELTBASE):
             if trace_seq: print( "Encoding", attrname, v )
             typ.encode (ctx, v)
 
-import new
+# import new
+# import types  # python3
 
 # SEQUENCE returns an object which is both an asn.1 spec and a callable
 # which generates a struct template to fill in.
@@ -1617,7 +1618,8 @@ def SEQUENCE (spec, base_typ = SEQUENCE_BASE, seq_name = None,
     bases = [StructBase]
     if extra_bases != None:
         bases = extra_bases + bases
-    klass = new.classobj (seq_name, tuple (bases), {})
+    # klass = new.classobj (seq_name, tuple (bases), {})
+    klass = type( seq_name, tuple(bases), {} )  # python3 version: <http://stackoverflow.com/a/23450530>
     seq = base_typ (klass, spec)
     klass._allowed_attrib_list = seq.get_attribs ()
     seq.klass = klass
