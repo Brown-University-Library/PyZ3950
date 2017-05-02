@@ -1358,15 +1358,15 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
 
         pad_bits_count = top_ind_to_pad_bits (val.top_ind)
 
-        val_len = ((val.top_ind + 1) / 8) + 1
+        val_len = int( ((val.top_ind + 1) / 8) + 1 )
         # + 1 for count of padding bits, count always 1 byte
         if pad_bits_count != 0:
             val_len += 1
         l = []
         to_write = (1 * val.bits) <<  pad_bits_count
         for i in range (val_len - 1):
-            l.append (to_write % 256)
-            to_write = to_write / 256
+            l.append( int(to_write % 256) )
+            to_write = int(to_write / 256)
 
         assert (to_write >= 0)
         if not cons_encoding:
