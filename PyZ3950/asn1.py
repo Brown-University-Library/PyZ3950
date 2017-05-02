@@ -634,7 +634,8 @@ class WriteCtx (CtxBase):
         # type-checking is icky but required by array i/f
         if isinstance (data, type ([])):
             self.buf.fromlist (data)
-        elif isinstance (data, type ('')):
+        # elif isinstance (data, type ('')):
+        elif isinstance( data, bytes ):
             self.buf.fromstring (data)
         else:
             raise EncodingError( "Bad type to bytes_write" )
@@ -1094,6 +1095,7 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
                 ctx.bytes_write ([ord(val[i])])
         else:
             ctx.len_write_known (len (val))
+            print( 'ZZ val, ```{v}```; type(), ```{t}```'.format(v=val, t=type(val)) )
             ctx.bytes_write (val)
     def encode_per (self, ctx, val):
         val = handle_charset (ctx, val)
