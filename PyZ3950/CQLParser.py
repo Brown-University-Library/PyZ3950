@@ -984,5 +984,5 @@ if (__name__ == "__main__"):
         print( "  Details:     " + str(diag.details) )
         print( "  Message:     " + str(diag.message) )
     else:
-        print( q.toXCQL()[:-1]; )
+        print( q.toXCQL()[:-1] );
 

@@ -14,7 +14,7 @@ class SRWDiagnostic (Exception):
     def __str__(self):
         return "%s [%s]: %s" % (self.uri, self.message, self.details)
 
-    # NB 'Need' name for serialization in SRW 
+    # NB 'Need' name for serialization in SRW
     def __init__(self, name=None):
         if (self.code):
             self.uri = "%s%d" % (self.uri, self.code)
@@ -45,7 +45,7 @@ class ScanDiagnostic (SRWDiagnostic):
 
 class DeprecatedDiagnostic(SRWDiagnostic):
     def __init__(self,  name=None):
-        print "WARNING:  Use of deprecated diagnostic %s" % (self)
+        print( "WARNING:  Use of deprecated diagnostic %s" % (self) )
         SRWDiagnostic.__init__(self)
 
 class ExplainDiagnostic (DeprecatedDiagnostic):
@@ -369,7 +369,7 @@ class Diagnostic121 (ScanDiagnostic):
     code = 121
     message = "Too many terms requested"
 
-    
+
 
 
 
@@ -448,4 +448,4 @@ class Diagnostic102 (ExplainDiagnostic):
 
 
 
-    
+
