@@ -1962,7 +1962,7 @@ class Tester:
         self.test (big_spec_test, sq)
         try:
             sq.c = 'bogus'
-        except AttributeError, exn:
+        except AttributeError as exn:
             assert (exn.args == ('c',))
         else: assert (0)
         bitstringval = BitStringVal (12, 0x16eb)
