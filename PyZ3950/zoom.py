@@ -543,7 +543,8 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             self._extract_recs (self._searchResult.records, 0)
     def __getattr__ (self, key):
         """Forward attribute access to Connection if appropriate"""
-        if self.__dict__.has_key (key):
+        # if self.__dict__.has_key (key):
+        if key in self.__dict__:
             return self.__dict__[key]
         if key in self.inherited_elts:
             return getattr (self._conn, key) # may raise AttributeError
@@ -572,12 +573,13 @@ class ResultSet(_AttrCheck, _ErrHdlr):
             return i + len (self)
         return i
     def _ensure_recs (self):
-        if not self._records.has_key (self.preferredRecordSyntax):
+        # if not self._records.has_key (self.preferredRecordSyntax):
+        if not self.preferredRecordSyntax in self._records:
             self._records [self.preferredRecordSyntax] = {}
             self._records [self.preferredRecordSyntax][
                 self.elementSetName] = [None] * len (self)
-        if not self._records[self.preferredRecordSyntax].has_key (
-            self.elementSetName):
+        # if not self._records[self.preferredRecordSyntax].has_key (self.elementSetName):
+        if not self.elementSetName in self._records[self.preferredRecordSyntax]:
             self._records [self.preferredRecordSyntax][
                 self.elementSetName] = [None] * len (self)
 
