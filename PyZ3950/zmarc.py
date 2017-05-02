@@ -128,7 +128,7 @@ def parse_sub (field):
         return None
 
     if field [2] != sep:
-        print "Bad field [2]", repr (field[2])
+        print( "Bad field [2]", repr (field[2]) )
         return None
     ind1 = field[0]
     ind2 = field[1]
@@ -190,13 +190,13 @@ class MARC:
             if len (line) == 0:
                 # actually happens for LC control id 12547199,
                 # retrievable w/ au=Boulanger
-#                print "0-len line for", tag, repr (line)
+#               print( "0-len line for", tag, repr (line) )
                 continue
             if line [-1] == '\x1E':
                 line = line[:-1]
             else:
                 pass # happens for same record as above.
-#                print "Weird, no hex 1E for", tag, repr(line)
+#               print( "Weird, no hex 1E for", tag, repr(line) )
             field = string.atoi (tag)
             if is_fixed (field):
                 self.fields[field] = [line]
@@ -1252,9 +1252,9 @@ def test_convert (s, enc):
     conv = MARC8_to_Unicode ()
     converted = conv.translate (s)
     converted = unicodedata.normalize ('NFC', converted)
-    print converted.encode (enc)
+    print( converted.encode (enc) )
 
-    print repr (converted)
+    print( repr (converted) )
 
 
 
@@ -1274,7 +1274,7 @@ if __name__ == '__main__':
         marc_text = marc_file.read ()
         while 1:
             marc_data1 = MARC(marc_text)
-            print str (marc_data1)
+            print( str (marc_data1) )
             new = marc_data1.get_MARC ()
             marc_data2 = MARC (marc_text)
             k1 = marc_data1.fields.keys ()
