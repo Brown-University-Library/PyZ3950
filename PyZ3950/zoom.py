@@ -652,7 +652,7 @@ class ResultSet(_AttrCheck, _ErrHdlr):
     def _extract_recs (self, records, lbound):
         (typ, recs) = records
         if trace_extract:
-            print "Extracting", len (recs), "starting at", lbound
+            print( "Extracting", len (recs), "starting at", lbound )
         if typ == 'nonSurrogateDiagnostic':
             self.err (recs.condition, "", recs.diagnosticSetId)
         elif typ == 'multipleNonSurDiagnostics':
@@ -941,20 +941,20 @@ if __name__ == '__main__':
             res = conn.search (query)
             for esn in esns:
                 for syn in fmts:
-                    print "Syntax", syn, "Esn", esn
+                    print( "Syntax", syn, "Esn", esn )
                     res.preferredRecordSyntax = syn
                     if esn != 'NONE':
                         res.elementSetName = esn
                     try:
                         for r in res:
-                            print str(r)
+                            print( str(r) )
                     except ZoomError as err:
-                        print "Zoom exception", err.__class__, err
+                        print( "Zoom exception", err.__class__, err )
 #           res.delete ()
 # Looks as if Oxford will close the connection if a delete is sent,
 # despite claiming delete support (verified with yaz client, too).
         except ZoomError as err:
-            print "Zoom exception", err.__class__, err
+            print( "Zoom exception", err.__class__, err )
 
 
 
