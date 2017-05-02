@@ -3,7 +3,7 @@
 try:
     from cStringIO import StringIO
 except:
-    from StringIO import StringIO
+    from io import StringIO
 from PyZ3950 import z3950, oids,asn1
 from PyZ3950.zdefs import make_attr
 from types import IntType, StringType, ListType
