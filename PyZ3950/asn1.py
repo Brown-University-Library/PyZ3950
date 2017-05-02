@@ -291,7 +291,8 @@ class StructBase:
     def is_allowed (self, k):
         if self._allowed_attrib_list == []: return 1
         if k == '_allowed_attribs': return 1
-        return self._allowed_attribs.has_key (k)
+        # return self._allowed_attribs.has_key (k)
+        return k in self._allowed_attribs
 # I implemented setattr b/c otherwise it can be difficult to tell when one
 # has mistyped an OPTIONAL element of a SEQUENCE.  This is probably a matter
 # of taste, and derived classes should feel welcome to override this.
