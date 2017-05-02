@@ -210,7 +210,7 @@ class Connection(_AttrCheck, _ErrHdlr):
         'responsePosition' : 'preferredPositionInResponse'
         }
 
-    attrlist = search_attrs + init_attrs + scan_zoom_to_z3950.keys () + [
+    attrlist = search_attrs + init_attrs + list(scan_zoom_to_z3950.keys()) + [
         'databaseName',
         'namedResultSets',
         'preferredRecordSyntax', # these three inheritable by RecordSet
