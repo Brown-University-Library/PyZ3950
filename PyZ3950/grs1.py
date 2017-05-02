@@ -26,14 +26,14 @@ class Node:
         leaf = getattr (self, 'leaf', None)
         tag  = getattr (self, 'tag', None)
         indent = " " * (self.tab_size * depth)
-        if leaf <> None:
+        if leaf != None:
             l.append ("%s%s %s" % (
                 indent, str (tag), leaf.content))
         else:
-            if tag <> None:
+            if tag != None:
                 l.append (indent + str (tag))
         meta = getattr (self, 'metadata', None)
-        if meta <> None:
+        if meta != None:
             l.append (indent + 'metadata: ' + str (meta))
         l.append ("".join (map (
             lambda n: n.str_depth (depth + 1), children)))
@@ -56,7 +56,7 @@ def preproc (raw):
         # Value [0] is str vs. num indicator
         kw ['tag'] = tag
         meta = getattr (raw, 'metaData', None)
-        if meta <> None:
+        if meta != None:
             kw ['metadata'] = meta
         if raw.content[0] == 'subtree':
             return Node (children = map (preproc, raw.content [1]), **kw)
@@ -65,7 +65,7 @@ def preproc (raw):
             # both attributes of leaf and of Node.  Use the Node
             # attribs, I'll try to clean this up sometime.
             return Node (leaf = raw, **kw)
-        
+
 
 
 
