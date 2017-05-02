@@ -317,19 +317,20 @@ def match_tag (a, b):
     return a[1] == b[1] and cons_match
 
 def encode_base128 (val):
-    print( 'ZZZ val, ```{}```'.format(val) )
-    print( 'ZZZ type(val), ```{}```'.format(type(val)) )
+    print( 'ZZZ initial val, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
     if val == 0:
         return [0x00]
     l = []
     while val:
-        print( 'ZZZ val here is, ```{}```'.format(val) )
-        print( 'ZZZ val type() here is, ```{}```'.format(type(val)) )
-        l.append ((val % 128) | 0x80)
+        print( 'ZZZ in-while initially val, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
+        val = int(val)
+        print( 'ZZZ in-while then val, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
+        l.append ( (val % 128) | 0x80)
         val = val / 128
     if len (l) > 0:
         l[0] = l[0] & 0x7F
         l.reverse ()
+    print( 'ZZZ returning, ```{rtn}```; type(), ```{typ}```'.format(rtn=l, typ=type(l)) )
     return l
 
 def read_base128 (buf, start):
