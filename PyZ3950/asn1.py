@@ -3,7 +3,7 @@
 # http://www.pobox.com/~asl2/software/PyZ3950/
 # and is licensed under the X Consortium license:
 # Copyright (c) 2001, Aaron S. Lav, asl2@pobox.com
-# All rights reserved. 
+# All rights reserved.
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -13,7 +13,7 @@
 # to whom the Software is furnished to do so, provided that the above
 # copyright notice(s) and this permission notice appear in all copies of
 # the Software and that both the above copyright notice(s) and this
-# permission notice appear in supporting documentation. 
+# permission notice appear in supporting documentation.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -23,12 +23,12 @@
 # INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING
 # FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
-# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # Except as contained in this notice, the name of a copyright holder
 # shall not be used in advertising or otherwise to promote the sale, use
 # or other dealings in this Software without prior written authorization
-# of the copyright holder. 
+# of the copyright holder.
 # Change history:
 # 2001/9/22 - fix test code to be slightly more elegant and fix test
 # comments to be correct.  Due to Roy Smith, roy.smith@micromuse.com
@@ -44,7 +44,7 @@ Encoding and
 decoding functions  (asn1.encode and asn1.decode) take an ASN.1 spec, and
 transform back and forth between a byte stream and what I consider a natural
 Python representation of the data.
-<p>Separating the ASN.1 specification from the code would allow 
+<p>Separating the ASN.1 specification from the code would allow
 compilation of the specification to inline Python or C code, or to a
 specification for a C-based engine.
 <p>This module supports the following ASN.1 types:
@@ -254,7 +254,7 @@ class StructBase:
         s = 'Struct: %s [\n' % (self.__class__)
         i = self.__dict__.items ()
         i.sort ()
-        i = filter (lambda it: it[0][0] <> '_', i)
+        i = filter (lambda it: it[0][0] != '_', i)
         s = s + string.join (map (lambda it: repr (it[0]) +
                                   ' ' + repr (it[1]), i), '\n')
         s = s + ']\n'
@@ -269,19 +269,19 @@ class StructBase:
                 return (isinstance (val, type ((0,))) or
                         isinstance (val, type ([])))
             if is_seq (s) and is_seq (o):
-                if len (s) <> len (o):
+                if len (s) != len (o):
                     return -1
                 for selt, oelt in zip (s, o):
                     c = cmp (selt, oelt)
-                    if c <> 0:
+                    if c != 0:
                         return c
             else:
                 c = cmp (s, o)
-                if c <> 0:
+                if c != 0:
                     return c
         okeys = other.__dict__.keys ()
         okeys.sort ()
-        if okeys <> keys:
+        if okeys != keys:
             return 1
         return 0
     def set_allowed_attribs (self, l):
@@ -380,7 +380,7 @@ class CtxBase:
         if trace_codec:
             print "popping codec"
         self.codec_dict_stack.pop ()
-    
+
 class IncrementalDecodeCtx(CtxBase):
     states = ["tag_first", "tag_rest", "len_first", "len_rest", "data",
               "indef_end"]
@@ -427,11 +427,11 @@ class IncrementalDecodeCtx(CtxBase):
         if typ is None: # falling off end of SEQUENCE with optional bits
             return 0
         return typ.check_tag (seen)
-    
+
     # XXX calling check_tag is inefficient for SEQUENCE and CHOICE,
     # b/c we have to iterate to check_tag, then use the tag again
     # to figure out what type to decode.
-    
+
     def set_state (self, new_state):
         self.state = new_state
     def push (self, decoded_len):
@@ -447,15 +447,15 @@ class IncrementalDecodeCtx(CtxBase):
         if len (self.stack) == 0:
             self.raise_error ("bad end of cons type")
         tos = self.stack.pop ()
-        if tos.len <> None:
-            if tos.len <> (self.offset - tos.start_offset):
+        if tos.len != None:
+            if tos.len != (self.offset - tos.start_offset):
                 self.raise_error ("constructed len mismatch (%d %d %d)" %
                                   (tos.len, self.offset, tos.start_offset))
         val = tos.cons.finish ()
-        if tos.cname <> None:
+        if tos.cname != None:
             val = (tos.cname, val)
         self.handle_decoded (val)
-        
+
     def raise_error (self, descr):
         raise BERError (descr + " offset %d" % (self.offset,))
     def feed (self, data):
@@ -468,17 +468,17 @@ class IncrementalDecodeCtx(CtxBase):
     def feed_tag_first (self, char):
         if char == 0x00:
             stacklen = len (self.stack)
-            if stacklen == 0 or self.stack[-1].len <> None:
+            if stacklen == 0 or self.stack[-1].len != None:
                 if stacklen == 0:
                     tos_len_str = "irrelevant"
                 else:
                     tos_len_str = str (self.stack[-1].len)
-                    
+
                 self.raise_error ("0x00 tag found, stacklen %d tos len %s" %
                                   (stacklen, tos_len_str))
             self.set_state ("indef_end")
             return
-            
+
         flags = char & 0xE0
         val = char & 0x1f
         self.decoded_tag = (flags, val)
@@ -502,7 +502,7 @@ class IncrementalDecodeCtx(CtxBase):
                               (str(self.decoded_tag),
                                self.get_cur_def().str_tag ()))
         self.set_state ("len_first")
-            
+
     def feed_len_first (self, char):
         if char >= 128:
             rest_len = char & 0x7f
@@ -524,7 +524,7 @@ class IncrementalDecodeCtx(CtxBase):
 
     def finish_len (self):
         if self.decoded_tag == (0,0):
-            if self.decoded_len <> 0:
+            if self.decoded_len != 0:
                 self.raise_error ("Bad len %d for tag 0" % (self.decoded_len,))
             self.pop ()
             return
@@ -543,7 +543,7 @@ class IncrementalDecodeCtx(CtxBase):
                 self.finish_data ()
         else:
             self.set_state (new_state)
-                
+
     def feed_data (self, char):
         self.data_buf.append (char)
         self.decoded_len -= 1
@@ -558,7 +558,7 @@ class IncrementalDecodeCtx(CtxBase):
             cname = None
         if not (cur_def is None): # we haven't fallen off end of a SEQ
             rv = cur_def.decode_val (self,  self.data_buf)
-            if cname <> None:
+            if cname != None:
                 rv = (cname, rv)
             self.handle_decoded (rv)
         else:
@@ -579,7 +579,7 @@ class IncrementalDecodeCtx(CtxBase):
         return 0
 
     def feed_indef_end (self, char):
-        if char <> 0x00:
+        if char != 0x00:
             self.raise_error ("end cons indef-len encoding %x" % (char,))
         self.pop ()
         self.set_state ("tag_first")
@@ -588,7 +588,7 @@ def tag_to_buf (tag, orig_flags = None):
     (flags, val) = tag
     # Constructed encoding is property of original tag, not of
     # implicit tag override
-    if orig_flags <> None:
+    if orig_flags != None:
         flags = flags | (orig_flags & CONS_FLAG)
     extra = 0
     if val >=0x1F:
@@ -645,7 +645,7 @@ log_of_2 = math.log (2)
 
 def log2 (x):
     return int(math.log (x) / log_of_2)
-    
+
 class PERWriteCtx(WriteCtx):
     def __init__ (self, aligned = 0, canonical = 0):
         self.aligned = aligned
@@ -656,7 +656,7 @@ class PERWriteCtx(WriteCtx):
     def write_bits_unaligned (self, val, bit_len):
         # write starting at bit_offset, no matter what
         byte_count = (bit_len + self.bit_offset) / BYTE_BITS
-        if (bit_len + self.bit_offset) % BYTE_BITS <> 0:
+        if (bit_len + self.bit_offset) % BYTE_BITS != 0:
             byte_count += 1
         my_range = range (byte_count - 1, -1, -1)
         lo_bits = map (lambda x: x * BYTE_BITS, my_range)
@@ -665,21 +665,21 @@ class PERWriteCtx(WriteCtx):
         bytes = map (extract_val, lo_bits)
 
         new_bit_offset = (bit_len + self.bit_offset) % BYTE_BITS
-        if new_bit_offset <> 0:
+        if new_bit_offset != 0:
             bytes [-1] = bytes [-1] << (BYTE_BITS - new_bit_offset)
-        if self.bit_offset <> 0:
+        if self.bit_offset != 0:
             self.buf[-1] = self.buf[-1] | bytes [0]
             self.bytes_write (bytes[1:])
         else:
             self.bytes_write (bytes)
         self.bit_offset = new_bit_offset
-        
+
     def write_bits (self, val, bit_len):
-        if self.aligned and self.bit_offset <> 0:
+        if self.aligned and self.bit_offset != 0:
             self.write_bits_unaligned (0, BYTE_BITS - self.bit_offset)
             self.bit_offset = 0
         self.write_bits_unaligned (val, bit_len)
-        
+
     # for {read,write}_*_int, see Dubuisson 20.4
     def write_constrained_int (self, val, lo, hi):
         assert (hi >= lo)
@@ -701,7 +701,7 @@ class PERWriteCtx(WriteCtx):
             self.write_bits (val - lo, 16)
             return
         assert (0)
-        
+
     def write_semiconstrained_int (self, val, lo):
         # write len field, then len, then min octets log_256(val-lo)
         assert (0)
@@ -719,7 +719,7 @@ class PERWriteCtx(WriteCtx):
             self.write_semiconstrained_int (val, 0)
 
 
-                  
+
 class BERWriteCtx(WriteCtx):
     def __init__ (self):
         WriteCtx.__init__ (self)
@@ -732,7 +732,7 @@ class BERWriteCtx(WriteCtx):
     def tag_write (self, tag):
         if trace_tag: print "Writing tag", tag
         (orig_flags, _) = tag
-        if self.cur_tag <> None:
+        if self.cur_tag != None:
             tag = self.cur_tag
             self.cur_tag = None
         l = tag_to_buf (tag, orig_flags)
@@ -772,7 +772,7 @@ class BERWriteCtx(WriteCtx):
         # where necessary), but ...
 
         # XXX fix to use more efficient code, now that we don't support 1.5.2!
-        
+
         for i in range (len(l) - lenlen):
             self.buf.insert (pos, 0)
         for i in range(len(l)):
@@ -861,7 +861,7 @@ class IMPLICIT(TAG):
     def encode_per (self, ctx, val):
         self.typ.encode_per (ctx, val)
 
-    
+
 class EXPLICIT (TAG):
     flags = CONS_FLAG  # Explicit tag is always a constructed encoding
     def __repr__ (self):
@@ -881,14 +881,14 @@ class EXPLICIT (TAG):
             self.tmp = val
             self.ind += 1
         def finish (self):
-            if self.ind <> 1:
+            if self.ind != 1:
                 raise BERError ("wrong number of elts %d for EXPLICIT %s" %
                                 (self.ind, self.typ))
             return self.tmp
 
     def start_cons (self, tag, cur_len, ctx):
         return self.ConsElt (self.typ)
-        
+
     def encode (self, ctx, val):
         ctx.cur_tag = None
         ctx.tag_write (self.tag)
@@ -931,7 +931,7 @@ class OidVal:
         for val in lst [2:]:
             encoded = encoded + encode_base128 (val)
         return encoded
-        
+
 class OID_class (ELTBASE):
     tag = (0, OID_TAG)
     known_len = 1
@@ -939,7 +939,7 @@ class OID_class (ELTBASE):
         ctx.len_write_known (len (val.encoded))
         ctx.bytes_write (val.encoded)
     def decode_val (self, ctx, buf):
-        b1 = buf [0] 
+        b1 = buf [0]
         oid = [b1 / 40, b1 % 40]
         start = 1
         mylen = len (buf)
@@ -947,7 +947,7 @@ class OID_class (ELTBASE):
             (start, val) = read_base128 (buf, start)
             oid.append (val)
         return OidVal (oid)
-    
+
 OID = OID_class ()
 
 # XXX need to translate into offset in list for PER encoding
@@ -979,7 +979,7 @@ class INTEGER_class (ELTBASE, NamedBase):
     known_len = 1
     def __init__ (self, *args):
         NamedBase.__init__ (self, *args)
-        if self.max <> 0:
+        if self.max != 0:
             self.hi = self.max # XXX reorganize!
         self.extensible = 0 # XXX
     def encode_val (self, ctx, val):
@@ -996,24 +996,24 @@ class INTEGER_class (ELTBASE, NamedBase):
             else:
                 term_cond = 0
                 last_hi = 0
-            while val <> term_cond:
+            while val != term_cond:
                 val, res = val >> 8, (val & 0xFF)
                 l.append (res)
-            if (l[-1] & 0x80 <> 0) ^ last_hi:
+            if (l[-1] & 0x80 != 0) ^ last_hi:
                 l.append (last_hi * 0xFF)
         ctx.len_write_known (len(l))
         l.reverse ()
         ctx.bytes_write (l)
     def encode_per (self, ctx, val):
         assert (not self.extensible)
-        assert (self.lo <> None)
+        assert (self.lo != None)
         print "encoding", val, self.lo, self.hi
         if self.hi == None:
             ctx.write_semiconstrained_int (val, self.lo)
         else:
             ctx.write_constrained_int (val, self.lo, self.hi)
-        
-        
+
+
     def decode_val (self, ctx, buf):
         val = 0
         if buf[0] >= 128: sgn = -1
@@ -1025,7 +1025,7 @@ class INTEGER_class (ELTBASE, NamedBase):
             val = - (val + pow (2, 8 * len (buf)))
             # XXX should be much more efficient decoder here
         return val
-    
+
 INTEGER = INTEGER_class ()
 
 class ConditionalConstr:
@@ -1043,7 +1043,7 @@ class ConditionalConstr:
 
 class OCTSTRING_class (ConditionalConstr, ELTBASE):
     def __init__ (self, tag = None, lo = None, hi = None):
-        if tag <> None:
+        if tag != None:
             self.base_tag = tag
         else:
             self.base_tag = OCTSTRING_TAG
@@ -1093,7 +1093,7 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
         val = handle_charset (ctx, val)
         assert (not self.extensible)
         l = len (val)
-        if self.lo <> None and self.lo == self.hi:
+        if self.lo != None and self.lo == self.hi:
             if l <= 2:
                 ctx.write_bits_unaligned (val, l * BYTE_BITS)
             elif l <= 8192:
@@ -1107,7 +1107,7 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
         else:
             ctx.write_constrained_int (l, self.lo, self.hi)
         ctx.write_bits (val, l * BYTE_BITS)
-            
+
     def decode_val (self, ctx, buf):
         tmp_str = ''.join (map (chr, buf))
         decoder = ctx.get_dec (self.base_tag)
@@ -1117,7 +1117,7 @@ class OCTSTRING_class (ConditionalConstr, ELTBASE):
         if trace_string:
             print repr (rv)
         return rv [0]
-    
+
 
 
 _STRING_TAGS = (UTF8STRING_TAG, NUMERICSTRING_TAG, PRINTABLESTRING_TAG,
@@ -1139,7 +1139,7 @@ class CHOICE:
         self.promises_fulfilled = 0
         # XXX self.promises_fulfilled is only needed for CHOICE,
         # but could speed up by adding checking to SEQUENCE, SEQUENCE_OF, etc.
-        
+
         self.choice = []
         # XXX rework this to use dict by arm name, dict by tag?
         # but CHOICE of CHOICE constructs mean that a typ can have
@@ -1167,7 +1167,7 @@ class CHOICE:
                 self.choice [i][1] = self.choice[i][1].get_promised (promises)
             else:
                 self.choice[i][1].fulfill_promises (promises)
-                
+
     def set_arm (self, i, new_arm):
         self.choice[i] = self.mung (new_arm)
     def mung (self, arm):
@@ -1306,7 +1306,7 @@ class BitStringVal:
             self.set (ind)
         else:
             self.clear (ind)
-    
+
 class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
     known_len = 1
     def __init__ (self, *args):
@@ -1349,12 +1349,12 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
         assert (top_ind_to_pad_bits (8) == 7)
         assert (top_ind_to_pad_bits (10) == 5)
         assert (top_ind_to_pad_bits (15) == 0)
-        
+
         pad_bits_count = top_ind_to_pad_bits (val.top_ind)
-        
+
         val_len = ((val.top_ind + 1) / 8) + 1
         # + 1 for count of padding bits, count always 1 byte
-        if pad_bits_count <> 0:
+        if pad_bits_count != 0:
             val_len += 1
         l = []
         to_write = (1L * val.bits) <<  pad_bits_count
@@ -1386,7 +1386,7 @@ class BITSTRING_class (ConditionalConstr, ELTBASE, NamedBase):
         bits = 0
         for b in buf [1:]:
             bits = 256L * bits + b
-        bits = bits >> pad_bits 
+        bits = bits >> pad_bits
         return BitStringVal ((len(buf) - 1) * 8 - pad_bits - 1 , bits,
                              self)
 
@@ -1399,7 +1399,7 @@ class SeqConsElt:
         self.tmp = seq.klass ()
     def get_cur_def (self, seen_tag):
         r = range (self.index, len (self.seq.seq))
-        
+
         for i in r:
             (name, typ, optional) = self.seq.seq [i]
             if typ.check_tag (seen_tag):
@@ -1409,7 +1409,7 @@ class SeqConsElt:
                 raise BERError ("SEQUENCE tag %s not found in %s (%d/%d)" %
                                 (str (seen_tag), str (self.seq),
                                  self.index, i))
-            
+
         # OK, we fell off the end.  Must just be absent OPTIONAL types.
         return None
 
@@ -1466,7 +1466,7 @@ class SEQUENCE_BASE (ELTBASE):
                 self.seq[i] = (name, typ.get_promised (promises), optional)
             else:
                 typ.fulfill_promises (promises)
-                
+
     def get_attribs (self):
         return map (lambda e: e[0], self.seq)
 
@@ -1491,8 +1491,8 @@ class SEQUENCE_BASE (ELTBASE):
                                             str(attrname))
             if trace_seq: print "Encoding", attrname, v
             typ.encode_per (ctx, v)
-                
-    
+
+
     def encode_val (self, ctx, val):
         for (attrname, typ, optional) in self.seq:
             try:
@@ -1534,9 +1534,9 @@ class Ctr:
 class_count = Ctr ()
 
 # This name only appears in debugging displays, so no big deal.
-def mk_seq_class_name (): 
+def mk_seq_class_name ():
     return "seq_class_%d" % class_count ()
-    
+
 
 class EXTERNAL_class (SEQUENCE_BASE):
     tag = (CONS_FLAG, EXTERNAL_TAG)
@@ -1557,13 +1557,13 @@ class EXTERNAL_class (SEQUENCE_BASE):
                     self.index = i
                     if name == 'encoding' and seen_tag [1] == 0:
                         asn = check_EXTERNAL_ASN (self.tmp)
-                        if asn <> None:
+                        if asn != None:
                             self.found_ext_ANY = 1
                             typ = asn
                             new_codec_fn = self.ctx.charset_switch_oids.get (
                                 getattr (self.tmp, 'direct_reference',
                                          None), None)
-                            if new_codec_fn <> None:
+                            if new_codec_fn != None:
                                 self.ctx.push_codec ()
                                 new_codec_fn ()
                                 self.codec_pushed = 1
@@ -1597,17 +1597,17 @@ class EXTERNAL_class (SEQUENCE_BASE):
                                             str(attrname))
             if attrname == 'encoding' and v[0] == 'single-ASN1-type':
                 asn = check_EXTERNAL_ASN (val)
-                if asn <> None:
+                if asn != None:
                     typ = asn
                     v = v[1]
                     new_codec_fn = ctx.charset_switch_oids.get (
                         getattr (val, 'direct_reference', None), None)
-                    if new_codec_fn <> None:
+                    if new_codec_fn != None:
                         ctx.push_codec ()
                         new_codec_fn ()
             if trace_seq: print "Encoding", attrname, v
             typ.encode (ctx, v)
-        if new_codec_fn <> None:
+        if new_codec_fn != None:
             ctx.pop_codec ()
 
 # XXX rename all these
@@ -1616,7 +1616,7 @@ def SEQUENCE (spec, base_typ = SEQUENCE_BASE, seq_name = None,
     if seq_name == None:
         seq_name = mk_seq_class_name ()
     bases = [StructBase]
-    if extra_bases <> None:
+    if extra_bases != None:
         bases = extra_bases + bases
     klass = new.classobj (seq_name, tuple (bases), {})
     seq = base_typ (klass, spec)
@@ -1629,7 +1629,7 @@ def SEQUENCE (spec, base_typ = SEQUENCE_BASE, seq_name = None,
 EXTERNAL = SEQUENCE ([('direct_reference', None, OID, 1),
                       ('indirect_reference', None, INTEGER, 1),
                       ('data_value_descriptor', None, ObjectDescriptor, 1),
-                      ('encoding', None, 
+                      ('encoding', None,
                        CHOICE([('single-ASN1-type', EXPLICIT(0), ANY),
                                ('octet-aligned', 1, OCTSTRING),
                                ('arbitrary', 2, BITSTRING)]))],
@@ -1652,7 +1652,7 @@ class REAL_val:
     _mantissa_bits = 20 # XXX is there no way to auto-determine correct val?
     def __repr__ (self):
         return 'REAL %f' % (self.get_val ())
-    
+
     def set_val (self, val):
         m, e = math.frexp (val)
         self.mantissa = int (m * pow (2, self._mantissa_bits))
@@ -1704,7 +1704,7 @@ def check_EXTERNAL_ASN (so_far):
         print rv, _oid_to_asn1_dict
     return rv
 
-    
+
 class SEQUENCE_OF(ELTBASE):
     tag = (CONS_FLAG, SEQUENCE_TAG)
     known_len = 0
@@ -1734,7 +1734,7 @@ class SEQUENCE_OF(ELTBASE):
             return self.lst
     def start_cons (self, tag, cur_len, ctx):
         return self.ConsElt (self.typ)
-        
+
     def encode_val (self, ctx, val):
         for e in val:
             self.typ.encode (ctx, e)
@@ -1753,20 +1753,20 @@ class BOOLEAN_class (ELTBASE):
     known_len = 1
     def encode_val (self, ctx, val):
         ctx.len_write_known (1)
-        ctx.bytes_write ([val <> 0])
+        ctx.bytes_write ([val != 0])
         # if val is multiple of 256, Python would treat as true, but
-        # just writing val would truncate. Thus, write val <> 0
+        # just writing val would truncate. Thus, write val != 0
     def encode_per (self, ctx, val):
-        ctx.write_bits_unaligned (val <> 0, 1)
+        ctx.write_bits_unaligned (val != 0, 1)
     def decode_val (self, ctx,buf):
         mylen = len (buf)
-        if mylen <> 1: ctx.raise_error ("Bogus length for bool " +
+        if mylen != 1: ctx.raise_error ("Bogus length for bool " +
                                         repr (mylen))
         # "not not" to canonicalize.  Really only needed for round-trip
         # decode - reencode - redecode testing
         return not not buf [0]
-    
-    
+
+
 BOOLEAN = BOOLEAN_class ()
 
 class NULL_class (ELTBASE):
@@ -1779,14 +1779,14 @@ class NULL_class (ELTBASE):
     def decode_val (self, ctx, buf):
         if len (buf) > 0: ctx.raise_error ("Bad length for NULL" + str (buf))
         return None
-    
+
 NULL = NULL_class ()
-    
-                           
+
+
 class ENUM (INTEGER_class):
     def __init__ (self, **kw):
         self.__dict__.update (kw)
-        
+
 OBJECT_IDENTIFIER = OID # for convenience of compiler
 
 class Promise(ELTBASE):
@@ -1810,15 +1810,15 @@ class Tester:
         buf = encode (spec, val)
         if self.print_test:
             for byte in buf:
-                print hex (byte)[2:], 
+                print hex (byte)[2:],
             print
 
         self.idc1.asn1_def = spec
-        self.idc1.feed (buf) 
+        self.idc1.feed (buf)
         self.idc2.feed (buf)
         print self.idc1.get_bytes_inprocess_count ()
         print self.idc2.get_bytes_inprocess_count ()
-        
+
 
         assert (self.idc1.get_bytes_inprocess_count () == 0)
         assert (self.idc2.get_bytes_inprocess_count () == 0)
@@ -1830,14 +1830,14 @@ class Tester:
         buf2 = encode (ANY, idec2)
         if self.print_test:
             for byte in buf2:
-                print hex (byte)[2:], 
+                print hex (byte)[2:],
             print
 
         if self.print_test:
             print "Val",repr(val),  "idec", repr (idec), "any", idec2
 
         if assertflag:
-            if buf2 <> buf:
+            if buf2 != buf:
                 print "buf1, buf2 differ"
             assert (idec == val)
 
@@ -1905,7 +1905,7 @@ class Tester:
         self.test (seq_of3, [[[],[],[[[[]]]]]])
         # stupendously useless without a CHOICE in the SEQUENCE_OF
         # to introduce ground terms, but hey.
-                   
+
         choice_spec = CHOICE ([('foo', 1, INTEGER),
                                ('bar', None, INTEGER),
                                ('baz', None, string_spec),
@@ -1914,8 +1914,8 @@ class Tester:
         self.test (choice_spec, ('bar', 3))
         self.test (choice_spec, ('baz', 'choose wisely'))
         self.test (choice_spec, ('foobar', ['choose wisely', 'choose stupidly']))
-        
-        
+
+
         choice2_spec = CHOICE ([('a', 1, INTEGER),
                                 ('b', EXPLICIT(2), Promise('choice2')),
                                 ('c', 3, SEQUENCE_OF(Promise('choice2')))])
@@ -1925,7 +1925,7 @@ class Tester:
         c2 = ('c', [('a', 4),
                     ('b', ('c', [('a', 5), ('b', ('a', 6))]))])
         self.test (choice2_spec, c2)
-    
+
         seq_spec = SEQUENCE (
                              [('a',5, INTEGER),
                               ('c', 51, INTEGER, 1),
@@ -1939,7 +1939,7 @@ class Tester:
 
         seq_test = Foo (4,5)
         self.test (seq_spec, seq_test)
-    
+
         seq_test = Foo (4,5)
         seq_test.c = 9
         self.test (seq_spec, seq_test)
@@ -1990,7 +1990,7 @@ class Tester:
         assert (idec.top_ind == 12)
         assert (idec.bits == 0x16eb)
 
-        
+
 SUTRS = [1,2,840,10003,5,101]
 
 def run (print_flag):
@@ -2005,8 +2005,8 @@ def run (print_flag):
             print "byte offset", t.idc1.offset, t.idc2.offset
 
 
-    
-         
+
+
 
 
 if __name__ == '__main__':
@@ -2014,7 +2014,7 @@ if __name__ == '__main__':
     inner_seq_def = SEQUENCE ([
         ('d1', 0, BOOLEAN),
         ('d2', 0, BOOLEAN)])
-    
+
     test_def = SEQUENCE ([
         ('a', 0, INTEGER_class (None, 0,7)),
         ('b', 0, BOOLEAN),
@@ -2031,4 +2031,4 @@ if __name__ == '__main__':
     print "bit offset", pwc.bit_offset
     print map (hex, pwc.get_data ())
     run (1)
-    
+
