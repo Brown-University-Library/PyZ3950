@@ -17,7 +17,7 @@ zconfig = ZCQLConfig()
 http://cheshire.berkeley.edu/cheshire2.html#zfind
 
 top        ::= query ['resultsetid' name]
-query      ::= query boolean clause | clause 
+query      ::= query boolean clause | clause
 clause     ::=  '(' query ')'
                | attributes [relation] term
                | resultset
@@ -55,7 +55,7 @@ relations = {'<' : 1,
              '>' : 5,
              'GT' : 5,
              '.GT.' : 5,
-             '<>' : 6,
+             '!=' : 6,
              '!=' : 6,
              'NE' : 6,
              '.NE.' : 6,
@@ -78,7 +78,7 @@ geoRelations = {'>=<' : 7,
                 '.FULLY_ENCLOSED_WITHIN.' : 8,
                 '<#>' : 9,
                 '.ENCLOSES.' : 9,
-                '<>#' : 10,
+                '!=#' : 10,
                 '.OUTSIDE_OF.' : 10,
                 '+-+' : 11,
                 '.NEAR.' : 11,
@@ -198,11 +198,11 @@ class C2Parser:
                 break
         return left
 
-            
+
     def subquery(self):
         if self.currentToken == "(":
             object = self.query()
-            if (self.currentToken <> ")"):
+            if (self.currentToken != ")"):
                 raise ValueError
             else:
                 self.fetch_token()
@@ -248,7 +248,7 @@ class C2Parser:
         else:
             # Argh!
             raise ValueError
-        
+
     def clause(self):
 
         if (self.is_boolean(self.nextToken) or not self.nextToken or self.nextToken.lower() == 'resultsetid' or self.nextToken == ")"):
@@ -352,7 +352,7 @@ class C2Parser:
             found = 0
             for a in attrs:
                 if (a[0] in [oids.Z3950_ATTRS_BIB1, None] and a[1] == 2):
-                    found =1 
+                    found =1
                     a[2] = val
                     break
             if (not found):
@@ -381,7 +381,7 @@ class C2Parser:
             term = ' '.join(term)
 
         self.fetch_token()
-            
+
         # Phew. Now build AttributesPlusTerm
         clause = z3950.AttributesPlusTerm()
         clause.attributes = [make_attr(*e) for e in attrs]
@@ -397,8 +397,8 @@ def parse(q):
     lexer.wordchars += "!@#$%^&*-+;,.?|~`:\\><='"
     lexer.wordchars = lexer.wordchars.replace('[', '')
     lexer.wordchars = lexer.wordchars.replace(']', '')
-    
-    
+
+
     parser = C2Parser(lexer)
     return parser.top()
 
