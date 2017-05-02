@@ -5,7 +5,7 @@ import codecs
 from PyZ3950.z3950_2001 import *
 from PyZ3950.oids import *
 
-    
+
 asn1.register_oid (Z3950_RECSYN_GRS1, GenericRecord)
 asn1.register_oid (Z3950_RECSYN_SUTRS, asn1.GeneralString)
 asn1.register_oid (Z3950_RECSYN_EXPLAIN, Explain_Record)
@@ -36,7 +36,7 @@ implementationId = 'PyZ39.50 - contact asl2@pobox.com' # haven't been assigned a
 
 def make_attr(set=None, atype=None, val=None, valType=None):
     ae = AttributeElement()
-    if (set <> None):
+    if (set != None):
         ae.attributeSet = set
     ae.attributeType = atype
     if (valType == 'numeric' or (valType == None and isinstance(val, int))):
@@ -76,7 +76,7 @@ def register_retrieval_record_oids (ctx, new_codec_name = 'ascii'):
 
 iso_10646_oid_to_name = {
     UNICODE_PART1_XFERSYN_UCS2_ov : 'utf-16', # XXX ucs-2 should differ from utf-16, in that ucs-2 forbids any characters not in the BMP, whereas utf-16 is a 16-bit encoding which encodes those characters into multiple 16-bit units
-   
+
 #    UNICODE_PART1_XFERSYN_UCS4_ov : 'ucs-4', # XXX no python support for this encoding?
     UNICODE_PART1_XFERSYN_UTF16_ov : 'utf-16',
     UNICODE_PART1_XFERSYN_UTF8_ov : 'utf-8'
@@ -112,7 +112,7 @@ def asn_charset_to_name (charset_tup):
 
 def charset_to_asn (charset_name):
     oid = try_get_iso10646_oid (charset_name)
-    if oid <> None:
+    if oid != None:
         iso10646 = Iso10646_3 ()
         iso10646.encodingLevel = oid
         return ('iso10646', iso10646)
@@ -152,15 +152,15 @@ elements in the ASN.1 are OPTIONAL.
             str (self.records_in_charsets))
     def pack_proposal (self):
         origin_prop = OriginProposal_3 ()
-        if self.charset_list <> None:
+        if self.charset_list != None:
             proposedCharSets = []
             for charset_name in self.charset_list:
                 proposedCharSets.append (charset_to_asn (charset_name))
 
             origin_prop.proposedCharSets = proposedCharSets
-        if self.lang_list <> None:
+        if self.lang_list != None:
             origin_prop.proposedlanguages = self.lang_list
-        if self.records_in_charsets <> None:
+        if self.records_in_charsets != None:
             origin_prop.recordsInSelectedCharSets = (
                 self.records_in_charsets)
         return ('proposal', origin_prop)
@@ -168,18 +168,18 @@ elements in the ASN.1 are OPTIONAL.
         (tag, proposal) = csn
         assert (tag == 'proposal')
         pcs = getattr (proposal, 'proposedCharSets', None)
-        if pcs <> None:
+        if pcs != None:
             if trace_charset:
                 print "pcs", pcs
             self.charset_list = []
 
             for charset in pcs:
                 charset_name = asn_charset_to_name (charset)
-                if charset_name <> None:
+                if charset_name != None:
                     self.charset_list.append (charset_name)
 
         lang = getattr (proposal, 'proposedlanguages', None)
-        if lang <> None:
+        if lang != None:
             self.lang_list = lang
         self.records_in_charsets = getattr (proposal,
                                             'recordsInSelectedCharSets', None)
@@ -200,22 +200,22 @@ class CharsetNegotResp:
         assert (typ == 'response')
         self.charset = None
         scs = getattr (val, 'selectedCharSets', None)
-        if scs <> None:
+        if scs != None:
             self.charset = asn_charset_to_name (scs)
         self.lang = getattr (val, 'selectedLanguage', None)
         self.records_in_charsets = getattr (
             val, 'recordsInSelectedCharSets', None)
     def pack_negot_resp (self):
         resp = TargetResponse_3 ()
-        if self.charset <> None:
+        if self.charset != None:
             resp.selectedCharSets = charset_to_asn (self.charset)
-        if self.lang <> None:
+        if self.lang != None:
             resp.selectedLanguage = self.lang
-        if self.records_in_charsets <> None:
+        if self.records_in_charsets != None:
             resp.recordsInSelectedCharSets = self.records_in_charsets
         return ('response', resp)
 
-    
+
 def get_charset_negot (init): # can be passed either InitializeRequest or InitializeResponse
     if trace_charset:
         print init
@@ -238,7 +238,7 @@ def get_charset_negot (init): # can be passed either InitializeRequest or Initia
                 (typ, val) = val.encoding
                 if typ == 'single-ASN1-type':
                     return val
-                    
+
     return None
 
 
@@ -283,7 +283,7 @@ def make_initreq (optionslist = None, authentication = None, v3 = 0,
     InitReq.protocolVersion ['version_2'] = 1
     InitReq.protocolVersion ['version_3'] = v3
     InitReq.options = Options ()
-    if optionslist <> None:
+    if optionslist != None:
         for o in optionslist:
             InitReq.options[o] = 1
     InitReq.options ['search'] = 1
@@ -313,12 +313,12 @@ def make_initreq (optionslist = None, authentication = None, v3 = 0,
     else:
         InitReq.implementationVersion = impl_vers
 
-    if authentication <> None:
+    if authentication != None:
         class UP: pass
         up = UP ()
         upAttrList = ['userId', 'password', 'groupId']
         for val, attr in zip (authentication, upAttrList): # silently truncate
-            if val <> None:
+            if val != None:
                 setattr (up, attr, val)
         data = asn1.encode (IdAuthentication, ('idPass', up))
         any_data = asn1.decode (asn1.ANY, data)
