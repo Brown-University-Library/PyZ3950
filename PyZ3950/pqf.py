@@ -104,12 +104,12 @@ class PQFParser:
         elif (self.currentToken == "{"):
             # Parens
             s = self.query_struct()
-            if (self.nextToken <> "}"):
+            if (self.nextToken != "}"):
                 raise(ValueError)
             else:
                 self.fetch_token()
             return s
-            
+
         else:
             t = self.term()
             return self.defaultClause(t)
@@ -130,7 +130,7 @@ class PQFParser:
             term = self.currentToken
 
         return (type, term)
-            
+
     def result_set(self):
         self.fetch_token()
         return ('op', ('resultSet', self.currentToken))
@@ -207,7 +207,7 @@ def parse(q):
     lexer = CQLshlex(query)
     # Override CQL's wordchars list to include /=><()
     lexer.wordchars += "!@#$%^&*-+[];,.?|~`:\\><=/'()"
-    
+
     parser = PQFParser(lexer)
     return parser.query()
 
@@ -251,10 +251,10 @@ def rpn2pqf(rpn):
         elif (q[0] == 'resultSet'):
             return "@set %s" % (q[1])
 
-            
-        
 
-    
+
+
+
 
 
 
