@@ -132,22 +132,21 @@ def extract_recs (resp):
 
 def get_formatter (oid):
     def printer (x):
-        print oid, repr (x)
+        print( oid, repr (x) )
     def print_marc (marc):
-        print str (zmarc.MARC(marc))
+        print( str (zmarc.MARC(marc)) )
     def print_sutrs (x):
-        print "SUTRS:",
+        print( "SUTRS:" ),
         if isinstance (x, type ('')):
-            print x
+            print( x )
         elif isinstance (x, type (u'')):
             if out_encoding == None:
-                print repr (x)
+                print( repr (x) )
             else:
                 try:
-                    print x.encode (out_encoding)
+                    print( x.encode (out_encoding) )
                 except UnicodeError, u:
-                    print "Cannot print %s in current encoding %s" % (
-                        repr (x), out_encoding)
+                    print( "Cannot print %s in current encoding %s" % (repr (x), out_encoding) )
     if oid == Z3950_RECSYN_SUTRS_ov:
         return print_sutrs
     if oid == Z3950_RECSYN_USMARC_ov:
@@ -159,7 +158,7 @@ def disp_resp (resp):
     try:
         (fmtoid, recs) = extract_recs (resp)
     except ProtocolError, val:
-        print "Bad records", str (val)
+        print( "Bad records", str (val) )
     formatter = get_formatter (fmtoid)
     for rec in recs:
         formatter (rec)
@@ -185,7 +184,7 @@ class Conn:
         self.charset_name = charset_name
         self.charsets_in_records = not not charsets_in_records # collapse None and 0
         if trace_charset:
-            print "Setting up codec!", self.charset_name
+            print( "Setting up codec!", self.charset_name )
         strip_bom = self.charset_name == 'utf-16'
         # XXX should create a new codec which wraps utf-16 but
         # strips the Byte Order Mark, or use stream codecs
@@ -212,7 +211,7 @@ class Conn:
             self.sock = None
             raise self.ConnectionError ('graceful close')
         if trace_recv:
-            print map (lambda x: hex(ord(x)), b)
+            print( map (lambda x: hex(ord(x)), b) )
         return b
     def read_PDU (self):
         while 1:
@@ -245,7 +244,7 @@ class Server (Conn):
     def send (self, val):
         b = self.encode_ctx.encode (APDU, val)
         if self.test:
-            print "Internal Testing"
+            print( "Internal Testing" )
             # a reminder not to leave this switched on by accident
             self.decode_ctx.feed (b)
             decoded = self.read_PDU ()
@@ -341,7 +340,7 @@ class Server (Conn):
 
     def init (self, ireq):
         if trace_init:
-            print "Init received", ireq
+            print( "Init received", ireq )
         self.v3_flag = (ireq.protocolVersion ['version_3'] and
                         Z3950_VERS == 3)
 
@@ -372,7 +371,7 @@ class Server (Conn):
                 csreq.records_in_charsets)
             records_in_charsets = csresp.records_in_charsets
             if trace_charset:
-                print csreq, csresp
+                print( csreq, csresp )
             set_charset_negot (ir, csresp.pack_negot_resp (), self.v3_flag)
 
         optionslist = ['search', 'present', 'delSet', 'scan','negotiation']
@@ -393,7 +392,7 @@ class Server (Conn):
         ir.result = 1
 
         if trace_charset or trace_init:
-            print ir
+            print( ir )
         self.expecting_init = 0
         self.send (('initResponse', ir))
         self.set_codec (charset_name, records_in_charsets)
@@ -407,7 +406,7 @@ class Server (Conn):
         dresp.deleteOperationStatus = 0
         self.send (('deleteResultSetResponse', dresp))
     def esrequest (self, esreq):
-        print "ES", esreq
+        print( "ES", esreq )
         esresp = ExtendedServicesResponse ()
         esresp.operationStatus = ExtendedServicesResponse['operationStatus'].get_num_from_name ('failure')
         self.send (('extendedServicesResponse', esresp))
@@ -435,9 +434,9 @@ def run_server (test = 0):
         except:
             (typ, val, tb) = sys.exc_info ()
             if typ == exceptions.KeyboardInterrupt:
-                print "kbd interrupt, leaving"
+                print( "kbd interrupt, leaving" )
                 raise
-            print "error %s %s from %s" % (typ, val, addr)
+            print( "error %s %s from %s" % (typ, val, addr) )
             traceback.print_exc(40)
         sock.close ()
 
@@ -497,23 +496,23 @@ class Client (Conn):
             # and clerkes for to seken straunge bookes ...
             cnr = CharsetNegotReq (charset, lang, random.choice((0,1,None)))
             if trace_charset:
-                print cnr
+                print( cnr )
             set_charset_negot (InitReq, cnr.pack_proposal (), try_v3)
 
         if trace_init:
-            print "Initialize request", InitReq
+            print( "Initialize request", InitReq )
 
         self.initresp = self.transact (
             ('initRequest', InitReq), 'initResponse')
         if trace_init:
-            print "Initialize Response", self.initresp
+            print( "Initialize Response", self.initresp )
         self.v3_flag = self.initresp.protocolVersion ['version_3']
         val = get_charset_negot (self.initresp)
         if val != None:
             csr = CharsetNegotResp ()
             csr.unpack_negot_resp (val)
             if trace_charset:
-                print "Got csr", str (csr)
+                print( "Got csr", str (csr) )
             self.set_codec (csr.charset, csr.records_in_charsets)
 
         self.search_results = {}
@@ -524,13 +523,13 @@ class Client (Conn):
     def transact (self, to_send, expected):
         b = self.encode_ctx.encode (APDU, to_send)
         if print_hex:
-            print map (hex, b)
+            print( map (hex, b) )
         if self.test:
-            print "Internal Testing"
+            print( "Internal Testing" )
             # a reminder not to leave this switched on by accident
             self.decode_ctx.feed (b)
             decoded = self.read_PDU ()
-            print "to_send", to_send, "decoded", decoded
+            print( "to_send", to_send, "decoded", decoded )
             assert (to_send == decoded)
         if self.sock == None:
             raise self.ConnectionError ('disconnected')
@@ -545,13 +544,13 @@ class Client (Conn):
         pdu = self.read_PDU ()
         (arm, val) = pdu
         if self.test:
-            print "Internal Testing 2"
+            print( "Internal Testing 2" )
             b = self.encode_ctx.encode (APDU, (arm, val))
             self.decode_ctx.feed (b)
             redecoded = self.read_PDU ()
             if redecoded != (arm, val):
-                print "Redecoded", redecoded
-                print "old", (arm, val)
+                print( "Redecoded", redecoded )
+                print( "old", (arm, val) )
                 assert (redecoded == (arm, val))
         if arm == expected: # may be 'close'
             return val
@@ -731,7 +730,7 @@ if __name__ == '__main__':
                   lang = lang_list)
     cli.test = test
     cli.set_dbnames ([dbname])
-    print "Starting search"
+    print( "Starting search" )
 #    rpnq = mk_simple_query ('Perec, Georges')
 #    rpnq = mk_simple_query ('Johnson, Kim')
     rpnq = mk_compound_query ()
@@ -739,11 +738,11 @@ if __name__ == '__main__':
                    largeSetLowerBound = 1):
         disp_resp (cli.present (recsyn = Z3950_RECSYN_USMARC_ov))
     else:
-        print "Not found"
-    print "Deleting"
+        print( "Not found" )
+    print( "Deleting" )
     cli.delete (default_resultSetName)
     cli.delete ('bogus')
-    print "Closing"
+    print( "Closing" )
     try:
         cli.close ()
     except ConnectionError:
