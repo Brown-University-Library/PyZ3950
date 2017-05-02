@@ -317,19 +317,19 @@ def match_tag (a, b):
     return a[1] == b[1] and cons_match
 
 def encode_base128 (val):
-    print( 'ZZZ initial val, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
+    # print( 'ZZZ initial val, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
     if val == 0:
         return [0x00]
     l = []
     while val:
-        print( 'ZZZ in-while val start, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
+        # print( 'ZZZ in-while val start, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
         l.append ( (val % 128) | 0x80)
-        val = val / 128
-        print( 'ZZZ in-while val end, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
+        val = int( val / 128 )
+        # print( 'ZZZ in-while val end, ```{vl}```; type(), ```{typ}```'.format(vl=val, typ=type(val)) )
     if len (l) > 0:
         l[0] = l[0] & 0x7F
         l.reverse ()
-    print( 'ZZZ returning, ```{rtn}```; type(), ```{typ}```'.format(rtn=l, typ=type(l)) )
+    # print( 'ZZZ returning, ```{rtn}```; type(), ```{typ}```'.format(rtn=l, typ=type(l)) )
     return l
 
 def read_base128 (buf, start):
@@ -917,7 +917,7 @@ def TYPE (tag, typ):
 class OidVal:
     def __init__ (self, lst):
         self.lst = tuple (lst)
-        print( 'lst, ```{l}```; type(), ```{t}```'.format(l=lst, t=type(lst)) )
+        # print( 'lst, ```{l}```; type(), ```{t}```'.format(l=lst, t=type(lst)) )
         self.encoded = self.encode (lst)
     def __hash__ (self):
         return hash (self.lst)
@@ -933,7 +933,7 @@ class OidVal:
     def encode (self, lst):
         encoded = [40 * lst [0] + lst [1]]
         for val in lst [2:]:
-            print( 'sending val, `{v}`; type(), `{t}`'.format(v=val, t=type(val)) )
+            # print( 'sending val, `{v}`; type(), `{t}`'.format(v=val, t=type(val)) )
             encoded = encoded + encode_base128 (val)
         return encoded
 
