@@ -38,8 +38,8 @@ try:
         'utility': oids.Z3950_ATTRS_UTIL_ov,
         'exp1':  oids.Z3950_ATTRS_EXP1_ov
         }
-    
-except ImportError, err:
+
+except ImportError as err:
     print "Error importing (OK during setup)", err
     in_setup = 1
 
@@ -169,7 +169,7 @@ class Node:
 def p_top (t):
     'top : cclfind_or_attrset'
     t[0] = t[1]
-    
+
 def p_cclfind_or_attrset_1 (t):
     'cclfind_or_attrset : cclfind'
     t[0] = t[1]
@@ -177,7 +177,7 @@ def p_cclfind_or_attrset_1 (t):
 def p_cclfind_or_attrset_2 (t):
     'cclfind_or_attrset : ATTRSET LPAREN WORD SLASH cclfind RPAREN'
     t[0] = Node ('attrset', [t[5]], t[3])
-        
+
 def p_ccl_find_1(t):
     'cclfind : cclfind LOGOP elements'
     t[0] = Node ('op', [t[1],t[3]], t[2])
@@ -200,7 +200,7 @@ class QuallistVal:
         if i == 0: return self.quallist
         if i == 1: return self.val
         raise IndexError ('QuallistVal err ' + str (i))
-    
+
 def xlate_qualifier (x):
     if x[0] == '(' and x[-1] == ')':
         t = x[1:-1].split (',') # t must be of len 2 b/c of lexer
@@ -221,7 +221,7 @@ def p_elements_3(t):
 def p_elements_4(t):
     'elements : quallist RELOP val'
     t[0] = Node ('relop', QuallistVal(map (xlate_qualifier, t[1]),t[3]), t[2])
-    
+
 # XXX p_elements_5 would be quals followed by recursive def'n, not yet implemented
 # XXX p_elements_6 would be quals followed by range, not yet implemented.
 
@@ -236,11 +236,11 @@ def p_quallist_2 (t):
 def p_val_1(t):
     'val : QUOTEDVALUE'
     t[0] = t[1]
-    
+
 def p_val_2(t):
     'val : val WORD'
     t[0] = t[1] + " " + t[2]
-    
+
 def p_val_3(t):
     'val : WORD'
     t[0] = t[1]
@@ -303,7 +303,7 @@ def tree_to_q (ast):
         return ('op', ('attrTerm', apt))
     elif ast.type == 'set':
         return ('op', ('resultSet', ast.leaf))
-        
+
     raise UnimplError("Bad ast type " + str(ast.type))
 
 def mk_rpn_query (query):
@@ -319,7 +319,7 @@ def mk_rpn_query (query):
     # with example/twisted/test.py set to parse_only, I get 277 parses/sec
     # with fixed PLY, vs. 63 parses/sec with broken PLY, on my 500 MHz PIII
     # laptop.
-    
+
     copiedlexer = None
     if hasattr (lexer, '__copy__'):
         copiedlexer = lexer.__copy__ ()
@@ -345,7 +345,7 @@ def testlex (s):
         if not token:
             break
         print token
-            
+
 def testyacc (s):
     copylex = lexer.__copy__ ()
     ast = yacc.parse (s, lexer = copylex)
