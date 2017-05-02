@@ -582,7 +582,7 @@ class CQLshlex(shlex):
         self.token = ''
         if self.debug > 1:
             if result:
-                print( "shlex: raw token=" + `result` )
+                print( "shlex: raw token=`" + result + "`" )
             else:
                 print( "shlex: raw token=EOF" )
         return result
@@ -926,7 +926,7 @@ def parse(query):
 
     try:
         query = query.encode("utf-8")
-    except Exception, e:
+    except Exception as e:
         diag = Diagnostic10()
         diag.details = "Cannot parse non utf-8 characters"
         raise diag
@@ -977,7 +977,7 @@ if (__name__ == "__main__"):
     s = sys.stdin.readline()
     try:
         q = parse(s);
-    except SRWDiagnostic, diag:
+    except SRWDiagnostic as diag:
         # Print a full version, not just str()
         print( "Diagnostic Generated." )
         print( "  Code:        " + str(diag.code) )
