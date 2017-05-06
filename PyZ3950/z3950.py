@@ -4,7 +4,7 @@
 # http://www.pobox.com/~asl2/software/PyZ3950/
 # and is licensed under the X Consortium license:
 # Copyright (c) 2001, Aaron S. Lav, asl2@pobox.com
-# All rights reserved. 
+# All rights reserved.
 
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -14,7 +14,7 @@
 # to whom the Software is furnished to do so, provided that the above
 # copyright notice(s) and this permission notice appear in all copies of
 # the Software and that both the above copyright notice(s) and this
-# permission notice appear in supporting documentation. 
+# permission notice appear in supporting documentation.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
@@ -24,12 +24,12 @@
 # INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING
 # FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
 # NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
-# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 
+# WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # Except as contained in this notice, the name of a copyright holder
 # shall not be used in advertising or otherwise to promote the sale, use
 # or other dealings in this Software without prior written authorization
-# of the copyright holder. 
+# of the copyright holder.
 
 # Change history:
 # 2002/05/23
@@ -59,6 +59,20 @@ Official Specification</a></li>
 """
 
 from __future__ import nested_scopes
+
+
+import logging, os, pprint
+
+if len( logging._handlerList ) == 1:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="[%(asctime)s] %(levelname)s [%(module)s-%(funcName)s()::%(lineno)d] %(message)s",
+        datefmt="%d/%b/%Y %H:%M:%S",
+        filename=os.environ['LOG_PATH'] )
+log = logging.getLogger(__name__)
+log.debug( 'z3950 loaded' )
+
+
 import getopt
 import sys
 import exceptions
@@ -169,6 +183,8 @@ class Conn:
     def __init__ (self, sock = None, ConnectionError = ConnectionError,
                   ProtocolError = ProtocolError, UnexpectedCloseError =
                   UnexpectedCloseError):
+        log.debug( 'Conn() -- sock type, `{typ}`; sock, ```{val}```'.format( typ=type(sock), val=sock ) )
+        log.debug( 'Conn() -- not logged: ConnectionError, ProtocolError, UnexpectedCloseError' )
         self.set_exns (ConnectionError, ProtocolError, UnexpectedCloseError)
         if sock == None:
             self.sock = socket.socket (socket.AF_INET, socket.SOCK_STREAM)
@@ -177,11 +193,13 @@ class Conn:
         self.decode_ctx = asn1.IncrementalDecodeCtx (APDU)
         self.encode_ctx = asn1.Ctx ()
     def set_exns (self, conn, protocol, unexp_close):
+        log.debug( 'Conn() -- starting; not logged: conn, protocol, unexp_close' )
         self.ConnectionError = conn
         self.ProtocolError = protocol
         self.UnexpectedCloseError = unexp_close
 
     def set_codec (self, charset_name, charsets_in_records):
+        log.debug( 'Conn() -- starting; not logged: charset_name, charsets_in_records' )
         self.charset_name = charset_name
         self.charsets_in_records = not not charsets_in_records # collapse None and 0
         if trace_charset:
@@ -199,8 +217,9 @@ class Conn:
             if not charsets_in_records: # None or 0
                 register_retrieval_record_oids(self.decode_ctx)
                 register_retrieval_record_oids(self.encode_ctx)
-            
+
     def readproc (self):
+        log.debug( 'Conn() -- starting; no params' )
         if self.sock == None:
             raise self.ConnectionError ('disconnected')
         try:
@@ -213,8 +232,10 @@ class Conn:
             raise self.ConnectionError ('graceful close')
         if trace_recv:
             print map (lambda x: hex(ord(x)), b)
+        log.debug( 'Conn() -- b type, `{typ}`; b, ```{val}```'.format( typ=type(b), val=b ) )
         return b
     def read_PDU (self):
+        log.debug( 'Conn() -- starting; no params' )
         while 1:
             if self.decode_ctx.val_count () > 0:
                 return self.decode_ctx.get_first_decoded ()
@@ -261,7 +282,7 @@ class Server (Conn):
     def close (self, parm):
         self.done = 1
         self.do_close (0, 'Normal close')
-        
+
     def search_child (self, query):
         return range (random.randint (2,10))
     def search (self, sreq):
@@ -293,8 +314,8 @@ class Server (Conn):
                 'seek, and ye shall find; ask, and it shall be given you',
                 u"""Car quiconque demande re\u00e7oit, qui cherche trouve, et \u00e0 quit frappe on ouvrira""", # This (next) verse has non-ASCII characters
                 u"\u0391\u03b9\u03c4\u03b5\u03b9\u03c4\u03b5, "
-                u"\u03ba\u03b1\u03b9 \u03b4\u03bf\u03b8\u03b7\u03c3\u03b5\u03c4\u03b1\u03b9 "+ 
-                u"\u03c5\u03bc\u03b9\u03bd; \u03b6\u03b7\u03c4\u03b5\u03b9\u03c4\u03b5 " + 
+                u"\u03ba\u03b1\u03b9 \u03b4\u03bf\u03b8\u03b7\u03c3\u03b5\u03c4\u03b1\u03b9 "+
+                u"\u03c5\u03bc\u03b9\u03bd; \u03b6\u03b7\u03c4\u03b5\u03b9\u03c4\u03b5 " +
                 u"\u03ba\u03b1\u03b9 \u03b5\u03c5\u03c1\u03b7\u03c3\u03b5\u03c4\u03b5",
                 u"\u05e8\u05d0\u05d4 \u05d6\u05d4 \u05de\u05e6\u05d0\u05ea\u05d9"]
             if self.charsets_in_records:
@@ -315,7 +336,7 @@ class Server (Conn):
             # language/content selection should not be made on the
             # basis of the selected charset, and a surrogate diagnostic
             # should be generated if the data cannot be encoded.
-            text = random.choice (candidate_strings) 
+            text = random.choice (candidate_strings)
             add_str = " #%d charset %s cir %d" % (elt, encode_charset,
                                               self.charsets_in_records)
             elt_external.encoding = ('single-ASN1-type', text + add_str)
@@ -324,7 +345,7 @@ class Server (Conn):
             n.record = ('retrievalRecord', elt_external)
             l.append (n)
         return l
-        
+
     def present (self, preq):
         presp = PresentResponse ()
         res_set = self.result_sets [preq.resultSetId]
@@ -338,13 +359,13 @@ class Server (Conn):
                                               res_set,
                                               preq.preferredRecordSyntax))
         self.send (('presentResponse', presp))
-        
+
     def init (self, ireq):
         if trace_init:
             print "Init received", ireq
         self.v3_flag = (ireq.protocolVersion ['version_3'] and
                         Z3950_VERS == 3)
-        
+
         ir = InitializeResponse ()
         ir.protocolVersion = ProtocolVersion ()
         ir.protocolVersion ['version_1'] = 1
@@ -374,18 +395,18 @@ class Server (Conn):
             if trace_charset:
                 print csreq, csresp
             set_charset_negot (ir, csresp.pack_negot_resp (), self.v3_flag)
-            
+
         optionslist = ['search', 'present', 'delSet', 'scan','negotiation']
         ir.options = Options ()
         for o in optionslist:
             ir.options[o] = 1
-            
+
         ir.preferredMessageSize = 0
-        
-        ir.exceptionalRecordSize = 0 
+
+        ir.exceptionalRecordSize = 0
         # z9350-2001 3.2.1.1.4, 0 means client should be prepared to accept
         # arbitrarily long messages.
-        
+
         ir.implementationId = implementationId
 
         ir.implementationName = 'PyZ3950 Test server'
@@ -411,7 +432,7 @@ class Server (Conn):
         esresp = ExtendedServicesResponse ()
         esresp.operationStatus = ExtendedServicesResponse['operationStatus'].get_num_from_name ('failure')
         self.send (('extendedServicesResponse', esresp))
-        
+
     fn_dict = {'searchRequest': search,
                'presentRequest': present,
                'initRequest' : init,
@@ -440,7 +461,7 @@ def run_server (test = 0):
             print "error %s %s from %s" % (typ, val, addr)
             traceback.print_exc(40)
         sock.close ()
-        
+
 def extract_apt (rpnQuery):
     """Takes RPNQuery to AttributePlusTerm"""
     RPNStruct = rpnQuery.rpn
@@ -454,14 +475,17 @@ class Client (Conn):
     test = 0
 
     def __init__ (self, addr, port = DEFAULT_PORT, optionslist = None,
-                  charset = None, lang = None, user = None, password = None, 
+                  charset = None, lang = None, user = None, password = None,
                   preferredMessageSize = 0x100000, group = None,
                   maximumRecordSize = 0x100000, implementationId = "",
                   implementationName = "", implementationVersion = "",
                   ConnectionError = ConnectionError,
                   ProtocolError = ProtocolError,
                   UnexpectedCloseError = UnexpectedCloseError):
-    
+        log.debug( 'Client() -- in Client(Conn)' )
+        log.debug( 'Client() -- addr type, `{typ}`; addr, ```{val}```'.format( typ=type(addr), val=addr ) )
+        log.debug( 'Client() -- not logged yet: port, optionslist, charset, lang, user, password, preferredMessageSize, group, maximumRecordSize, implementationId, implementationName, implementationVersion, ConnectionError, ProtocolError, UnexpectedCloseError' )
+        log.debug( 'Client() -- about to call Conn.__init__()' )
         Conn.__init__ (self, ConnectionError = ConnectionError,
                        ProtocolError = ProtocolError,
                        UnexpectedCloseError = UnexpectedCloseError)
@@ -579,7 +603,7 @@ class Client (Conn):
         # for backwards compat
         recv = self.search_2 (('type_1', query), rsn, **kw)
         return recv.searchStatus and (recv.resultCount > 0)
-    # If searchStatus is failure, check result-set-status - 
+    # If searchStatus is failure, check result-set-status -
     # -subset - partial, valid results available
     # -interim - partial, not necessarily valid
     # -none - no result set
