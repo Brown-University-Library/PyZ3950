@@ -60,7 +60,7 @@ from __future__ import nested_scopes
 __author__ = 'Aaron Lav (asl2@pobox.com)'
 __version__ = '1.0' # XXX
 
-import logging, os
+import logging, os, pprint
 
 if len( logging._handlerList ) == 1:
     logging.basicConfig(
@@ -69,7 +69,7 @@ if len( logging._handlerList ) == 1:
         datefmt="%d/%b/%Y %H:%M:%S",
         filename=os.environ['LOG_PATH'] )
 log = logging.getLogger(__name__)
-log.debug( 'module loaded' )
+log.debug( 'zoom loaded' )
 
 
 import getopt
@@ -278,10 +278,10 @@ class Connection(_AttrCheck, _ErrHdlr):
         implementationVersion  Version of client implementation
 
         """
-        log.debug( 'host type, `{typ}`; host, ```{val}```'.format( typ=type(host), val=host ) )
-        log.debug( 'port type, `{typ}`; port, ```{val}```'.format( typ=type(port), val=port ) )
-        log.debug( 'connect type, `{typ}`; connect, ```{val}```'.format( typ=type(connect), val=connect ) )
-        log.debug( 'kw type, `{typ}`; kw, ```{val}```'.format( typ=type(kw), val=kw ) )
+        log.debug( 'Connection() -- host type, `{typ}`; host, ```{val}```'.format( typ=type(host), val=host ) )
+        log.debug( 'Connection() -- port type, `{typ}`; port, ```{val}```'.format( typ=type(port), val=port ) )
+        log.debug( 'Connection() -- connect type, `{typ}`; connect, ```{val}```'.format( typ=type(connect), val=connect ) )
+        log.debug( 'Connection() -- kw type, `{typ}`; kw, ```{val}```'.format( typ=type(kw), val=kw ) )
 
         self.host = host
         self.port = port
@@ -307,13 +307,17 @@ class Connection(_AttrCheck, _ErrHdlr):
         initkw = {}
         for attr in self.init_attrs:
             initkw[attr] = getattr(self, attr)
+        log.debug( 'initkw -- initial type, `{typ}`; initkw, ```{val}```'.format( typ=type(initkw), val=pprint.pformat(initkw) ) )
         if (self.namedResultSets):
             options = ['namedResultSets']
         else:
             options = []
+        log.debug( 'options type, `{typ}`; options, ```{val}```'.format( typ=type(options), val=options ) )
         initkw ['ConnectionError'] = ConnectionError
         initkw ['ProtocolError'] = ProtocolError
         initkw ['UnexpectedCloseError'] = UnexpectedCloseError
+        log.debug( 'initkw -- eventual type, `{typ}`; initkw, ```{val}```'.format( typ=type(initkw), val=pprint.pformat(initkw) ) )
+        log.debug( 'about to call self._cli' )
         self._cli = z3950.Client (self.host, self.port,
                                   optionslist = options, **initkw)
         self.namedResultSets = self._cli.get_option ('namedResultSets')
@@ -342,6 +346,7 @@ class Connection(_AttrCheck, _ErrHdlr):
 
     def search (self, query):
         """Search, taking Query object, returning ResultSet"""
+        log.debug( 'query type, `{typ}`; query, ```{val}```'.format( typ=type(query), val=query ) )
         if (not self._cli):
             self.connect()
         assert (query.typ in self._queryTypes)
@@ -462,11 +467,14 @@ class Query:
         """Creates Query object.
 Supported query types:  CCL, S-CCL, CQL, S-CQL, PQF, C2, ZSQL, CQL-TREE
 """
+        log.debug( 'Query() -- typ type, `{ty}`; typ, ```{val}```'.format( ty=type(typ), val=typ ) )
+        log.debug( 'Query() -- query type, `{typ}`; query, ```{val}```'.format( typ=type(query), val=query ) )
         typ = typ.upper()
 # XXX maybe replace if ... elif ...  with dict mapping querytype to func
         if typ == 'CCL':
            self.typ = 'RPN'
            try:
+
                self.query = ccl.mk_rpn_query (query)
            except ccl.QuerySyntaxError, err:
                raise QuerySyntaxError (str(err))
