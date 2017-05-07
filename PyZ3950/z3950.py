@@ -191,7 +191,11 @@ class Conn:
         else:
             self.sock = sock
         self.decode_ctx = asn1.IncrementalDecodeCtx (APDU)
+        log.debug( 'Conn() -- about to set self.encode_ctx' )
         self.encode_ctx = asn1.Ctx ()
+        log.debug( 'Conn() -- self.encode_ctx type, `{typ}`; self.encode_ctx, ```{val}```'.format( typ=type(self.encode_ctx), val=self.encode_ctx ) )
+        log.debug( 'Conn() -- __init__() done' )
+
     def set_exns (self, conn, protocol, unexp_close):
         log.debug( 'Conn() -- starting; not logged: conn, protocol, unexp_close' )
         self.ConnectionError = conn
@@ -501,6 +505,8 @@ class Client (Conn):
         if (lang and not isinstance(lang, list)):
             charset = [lang]
         negotiate_charset = charset or lang
+        log.debug( 'Client() -- negotiate_charset type, `{typ}`; negotiate_charset, ```{val}```'.format( typ=type(negotiate_charset), val=negotiate_charset ) )
+
 
         if (user or password or group):
             authentication = (user, password, group)
@@ -543,10 +549,16 @@ class Client (Conn):
         self.search_results = {}
         self.max_to_request = 20
         self.default_recordSyntax = Z3950_RECSYN_USMARC_ov
+        log.debug( 'Client() -- __init__() done' )
+
     def get_option (self, option_name):
         return self.initresp.options[option_name]
+
     def transact (self, to_send, expected):
+        log.debug( 'Client() -- to_send type, `{typ}`; to_send, ```{val}```'.format( typ=type(to_send), val=to_send ) )
+        log.debug( 'Client() -- expected type, `{typ}`; expected, ```{val}```'.format( typ=type(expected), val=expected ) )
         b = self.encode_ctx.encode (APDU, to_send)
+        log.debug( 'Client() -- b-encoded type, `{typ}`; b-encoded, ```{val}```'.format( typ=type(b), val=b ) )
         if print_hex:
             print map (hex, b)
         if self.test:
@@ -559,6 +571,7 @@ class Client (Conn):
         if self.sock == None:
             raise self.ConnectionError ('disconnected')
         try:
+            log.debug( 'Client() -- b (for sock.send) type, `{typ}`; b, ```{val}```'.format( typ=type(b), val=b ) )
             self.sock.send (b)
         except socket.error, val:
             self.sock = None
