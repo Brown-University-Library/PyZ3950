@@ -354,6 +354,7 @@ def read_base128 (buf, start):
 class CtxBase:
     """Charset codec functionality, shared among all contexts."""
     def __init__ (self):
+        log.debug( 'CtxBase() starting' )
         self.charset_switch_oids = {}
         self.codec_dict_stack = [{}]
         # We may need different codecs for differing string types, e.g.
@@ -633,14 +634,22 @@ class WriteCtx (CtxBase):
         self.clear ()
     def clear (self):
         self.buf = array.array ('B')
+        log.debug( 'WriteCtx() -- self.buf-after-initialization type, `%s`; self.buf, ```%s```' % ( type(self.buf), self.buf ) )
+        # log.debug( 'WriteCtx() -- self.buf-after-initialization type, `{typ}`; self.buf, ```{val}```'.format( typ=type(self.buf), val=self.buf ) )
     def encode (self, spec, data):
         log.debug( 'WriteCtx() -- spec type, `{typ}`; spec, ```{val}```'.format( typ=type(spec), val=spec ) )
         log.debug( 'WriteCtx() -- data type, `{typ}`; data, ```{val}```'.format( typ=type(data), val=data ) )
         self.clear ()
         spec.encode (self, data)
-        return self.get_data ()
+        log.debug( 'WriteCtx() -- spec after-encode type, `{typ}`; spec, ```{val}```'.format( typ=type(spec), val=spec ) )
+        return_val = self.get_data ()
+        log.debug( 'WriteCtx() -- return_val after self.get_data() type, `{typ}`; return_val, ```{val}```'.format( typ=type(return_val), val=return_val ) )
+        return return_val
     def get_data (self):
-        return self.buf
+        log.debug( 'WriteCtx() -- starting get_data()' )
+        return_val = self.buf
+        log.debug( 'WriteCtx() -- return_val after self.buf() type, `{typ}`; return_val, ```{val}```'.format( typ=type(return_val), val=return_val ) )
+        return return_val
     def bytes_write (self, data):
         # type-checking is icky but required by array i/f
         if isinstance (data, type ([])):
@@ -1153,6 +1162,7 @@ class CHOICE:
     choice_type = 1
     # No class.tag, tag derives from chosen arm of CHOICE
     def __init__ (self, c):
+        log.debug( 'CHOICE() -- starting __init__' )
         self.promises_fulfilled = 0
         # XXX self.promises_fulfilled is only needed for CHOICE,
         # but could speed up by adding checking to SEQUENCE, SEQUENCE_OF, etc.
@@ -1203,9 +1213,20 @@ class CHOICE:
     # Note: we don't include types in the repr, because that can induce
     # infinite recursion.
     def encode (self, ctx, val):
+        log.debug( 'CHOICE() -- this appears to be spec.encode()' )
+        log.debug( 'CHOICE() -- ctx type, `{typ}`; ctx, ```{val}```'.format( typ=type(ctx), val=ctx ) )
+        log.debug( 'CHOICE() -- val type, `{typ}`; val, ```{vl}```'.format( typ=type(val), vl=val ) )
+
         if trace_choice: print val
+        log.debug( 'CHOICE() -- trace_choice, ```{}```'.format(trace_choice) )
         (name, val) = val
+        log.debug( 'CHOICE() -- name type, `{typ}`; name, ```{val}```'.format( typ=type(name), val=name ) )
+        log.debug( 'CHOICE() -- val after-tuple type, `{typ}`; val, ```{vl}```'.format( typ=type(val), vl=val ) )
+        log.debug( 'CHOICE() -- self.choice, ```%s```' % dir(self.choice) )
+
         for (cname, ctyp) in self.choice:
+            log.debug( 'CHOICE() -- cname type, `{typ}`; cname, ```{val}```'.format( typ=type(cname), val=cname ) )
+            # log.debug( 'CHOICE() -- ctyp type, `{typ}`; ctyp, ```{val}```'.format( typ=type(ctyp), val=ctyp ) )
             if cname == name:
                 if trace_choice: print "Encoding arm", cname, "Val", val
                 ctyp.encode (ctx, val)

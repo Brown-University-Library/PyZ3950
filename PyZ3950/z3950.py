@@ -557,6 +557,8 @@ class Client (Conn):
     def transact (self, to_send, expected):
         log.debug( 'Client() -- to_send type, `{typ}`; to_send, ```{val}```'.format( typ=type(to_send), val=to_send ) )
         log.debug( 'Client() -- expected type, `{typ}`; expected, ```{val}```'.format( typ=type(expected), val=expected ) )
+        log.debug( 'Client() -- APDU (where is this set?) type, `{typ}`; APDU, ```{val}```'.format( typ=type(APDU), val=APDU ) )
+        log.debug( 'Client() -- about to call self.encode_ctx.encode( APDU, to_send )' )
         b = self.encode_ctx.encode (APDU, to_send)
         log.debug( 'Client() -- b-encoded type, `{typ}`; b-encoded, ```{val}```'.format( typ=type(b), val=b ) )
         if print_hex:
